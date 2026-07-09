@@ -1,25 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {
-  copyFileSync,
-  mkdtempSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import {copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync,} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
 import {
+  buildRemediationPlan,
+  checkReadiness,
+  deriveMasteryState,
+  findLearningGaps,
   loadTaxonomyRelease,
   makeGraphStore,
-  deriveMasteryState,
-  checkReadiness,
-  findLearningGaps,
-  validateContentMappings,
   recommendNextBestTopics,
+  validateContentMappings,
 } from './easefactor-reference.mjs';
 
 const fixtureDataFiles = [
@@ -287,6 +281,45 @@ test('findLearningGaps ranks weakest evidence first', () => {
   assert.deepEqual(gaps.gaps.map((row) => row.rank), [1, 2]);
   assert.ok(gaps.gaps.every((row) => row.status === 'developing'));
   assert.ok(gaps.explanation.toLowerCase().includes('gap'));
+});
+
+test('buildRemediationPlan converts blocked hard prerequisites into ordered repair steps', () => {
+    const graph = makeGraphStore(loadTaxonomyRelease());
+    const masteryByTopic = deriveMasteryState([
+        {
+            learnerId: 'learner_test',
+            topicId: 'mt_K5jM7vlVhA',
+            result: 'partial',
+            score: 0.5,
+            observedAt: '2026-07-09T10:00:00.000Z',
+        },
+    ]);
+
+    const plan = buildRemediationPlan(graph, {
+        learnerId: 'learner_test',
+        targetTopicId: 'mt_FHIAv6dfhU',
+        masteryByTopic,
+        contentMappings: [
+            {
+                contentId: 'content-factor-pairs-practice',
+                topicId: 'mt_nZkL5-XjRX',
+                taxonomyVersion: 'v1',
+                role: 'practices',
+                confidence: 'reviewed',
+                estimatedMinutes: 12,
+            },
+        ],
+    });
+
+    assert.equal(plan.taxonomyVersion, 'v1');
+    assert.equal(plan.learnerId, 'learner_test');
+    assert.equal(plan.targetTopicId, 'mt_FHIAv6dfhU');
+    assert.equal(plan.readyToLearnTarget, false);
+    assert.deepEqual(plan.steps.map((step) => step.topicId), ['mt_nZkL5-XjRX', 'mt_K5jM7vlVhA']);
+    assert.equal(plan.steps[0].servableNow, true);
+    assert.equal(plan.steps[1].servableNow, false);
+    assert.match(plan.steps[0].explanation, /missing prerequisite evidence/i);
+    assert.match(plan.steps[1].explanation, /weak prerequisite evidence/i);
 });
 
 test('validateContentMappings accepts synthetic mappings and rejects unknown topics', () => {

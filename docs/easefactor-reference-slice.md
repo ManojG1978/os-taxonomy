@@ -111,13 +111,24 @@ Planner demo endpoint:
 
 ```http
 POST /planner/v1/next-best-topics
+POST /planner/v1/remediation-plan
 ```
 
-The planner endpoint accepts JSON with `goal`, `constraints`, optional
+`/planner/v1/next-best-topics` accepts JSON with `goal`, `constraints`, optional
 synthetic `masteryEvents`, and optional `contentMappings`. It derives mastery
 state in memory for the request and returns the deterministic
 `recommendNextBestTopics` payload. No learner, customer, or content records are
 persisted to `data/`.
+
+`/planner/v1/remediation-plan` accepts JSON with `targetTopicId`, optional
+`learnerId`, optional synthetic `masteryEvents`, and optional synthetic
+`contentMappings`. It reuses readiness and gap logic to return ordered repair
+steps for missing or weak hard prerequisites only. Each step includes readiness
+and gap context, an explanation, `servableNow`, and any matching content summary.
+`servableNow` is true only when reviewed or verified teaching, practice, or
+review content maps to that prerequisite. It does not create learner records,
+persist observations, authenticate callers, or broaden into a general learning
+path endpoint.
 
 Learner demo endpoints:
 
@@ -132,7 +143,7 @@ return `checkReadiness` or `findLearningGaps` for the requested taxonomy topic.
 They do not create learner records, persist observations, authenticate callers,
 or add database/product backend behavior.
 
-Shared learner endpoint errors:
+Shared synthetic POST endpoint errors:
 
 - malformed JSON returns `400` with `invalid_json`;
 - unknown topic IDs return `404` with `unknown_topic_id`;
@@ -148,7 +159,7 @@ Use this slice as the seam between the taxonomy dataset and EaseFactor services:
 | Taxonomy Graph Store    | `makeGraphStore`                                           |
 | Learner Mastery Service | `deriveMasteryState`, `checkReadiness`, `findLearningGaps` |
 | Content Mapping Service | `validateContentMappings`                                  |
-| Planner Service         | `recommendNextBestTopics`                                  |
+| Planner Service         | `recommendNextBestTopics`, `buildRemediationPlan`          |
 | Local HTTP Reference    | `createEaseFactorApiServer`                                |
 
 ## Licensing And Privacy Boundaries
