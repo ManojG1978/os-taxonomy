@@ -1,7 +1,9 @@
 import clustersJson from "../../../../data/clusters.json";
+import alignmentsJson from "../../../../data/curriculum-alignments.json";
 import dependenciesJson from "../../../../data/dependencies.json";
 import manifestJson from "../../../../data/manifest.json";
 import topicsJson from "../../../../data/topics.json";
+import type {CurriculumAlignment} from "./alignmentFilters";
 
 export type Topic = {
     id: string;
@@ -35,6 +37,7 @@ export type Cluster = {
 export type TaxonomyGraph = {
     topics: Topic[];
     dependencies: Dependency[];
+    alignments: CurriculumAlignment[];
     clusters: Cluster[];
     manifest: {
         taxonomyVersion: string;
@@ -45,6 +48,7 @@ export type TaxonomyGraph = {
             clusters: number;
             curricula: number;
             curriculumStandards: number;
+            curriculumAlignments: number;
         };
     };
     subjects: string[];
@@ -58,6 +62,7 @@ export type TaxonomyGraph = {
 export function getTaxonomyGraph(): TaxonomyGraph {
     const topics = topicsJson.topics as Topic[];
     const dependencies = dependenciesJson.dependencies as Dependency[];
+    const alignments = alignmentsJson.alignments as CurriculumAlignment[];
     const clusters = clustersJson.clusters as Cluster[];
     const subjects = Array.from(new Set(topics.map((topic) => topic.subject))).sort();
     const domainsBySubject = subjects.reduce<Record<string, string[]>>((domains, subject) => {
@@ -75,6 +80,7 @@ export function getTaxonomyGraph(): TaxonomyGraph {
     return {
         topics,
         dependencies,
+        alignments,
         clusters,
         manifest: manifestJson,
         subjects,

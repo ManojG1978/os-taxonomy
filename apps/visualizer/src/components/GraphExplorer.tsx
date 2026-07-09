@@ -3,6 +3,14 @@
 import {Background, Controls, type Edge, MarkerType, MiniMap, type Node, ReactFlow,} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {useEffect, useMemo, useState} from "react";
+import {
+    type AlignmentFilterState,
+    ALL_ALIGNMENT_FILTERS,
+    type CurriculumAlignment,
+    getAlignedTopicIds,
+    getAlignmentOptions,
+    isAlignmentFilterActive,
+} from "@/lib/alignmentFilters";
 import type {Dependency, TaxonomyGraph, Topic} from "@/lib/taxonomy";
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -23,6 +31,7 @@ type GraphExplorerProps = {
 type SelectedTopic = Topic & {
     prerequisites: Dependency[];
     unlocks: Dependency[];
+    alignments: CurriculumAlignment[];
 };
 
 type Theme = "light" | "dark";
@@ -33,6 +42,8 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
     const [minAge, setMinAge] = useState(graph.ageRange.min);
     const [maxAge, setMaxAge] = useState(graph.ageRange.max);
     const [edgeMode, setEdgeMode] = useState<"hard" | "soft" | "all">("all");
+    const [alignmentFilters, setAlignmentFilters] =
+        useState<AlignmentFilterState>(ALL_ALIGNMENT_FILTERS);
     const [query, setQuery] = useState("");
     const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
     const [theme, setTheme] = useState<Theme>("light");
@@ -57,6 +68,18 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
     );
 
     const domains = graph.domainsBySubject[subject] ?? [];
+    const alignmentOptions = useMemo(
+        () => getAlignmentOptions(graph.alignments, subject),
+        [graph.alignments, subject],
+    );
+    const alignmentFilterActive = isAlignmentFilterActive(alignmentFilters);
+    const alignedTopicIds = useMemo(
+        () =>
+            alignmentFilterActive
+                ? getAlignedTopicIds(graph.alignments, alignmentFilters)
+                : null,
+        [alignmentFilterActive, alignmentFilters, graph.alignments],
+    );
 
     const filteredTopics = useMemo(() => {
         const normalizedQuery = query.trim().toLowerCase();
@@ -64,6 +87,7 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
             .filter((topic) => topic.subject === subject)
             .filter((topic) => domain === "All domains" || topic.domain === domain)
             .filter((topic) => topic.ageRangeStart <= maxAge && topic.ageRangeEnd >= minAge)
+            .filter((topic) => !alignedTopicIds || alignedTopicIds.has(topic.id))
             .filter((topic) => {
                 if (!normalizedQuery) {
                     return true;
@@ -82,7 +106,7 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                 return b.centrality - a.centrality;
             })
             .slice(0, 220);
-    }, [domain, graph.topics, maxAge, minAge, query, subject]);
+    }, [alignedTopicIds, domain, graph.topics, maxAge, minAge, query, subject]);
 
     const filteredTopicIds = useMemo(
         () => new Set(filteredTopics.map((topic) => topic.id)),
@@ -113,8 +137,9 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
             ...topic,
             prerequisites: graph.dependencies.filter((dependency) => dependency.topicId === topic.id),
             unlocks: graph.dependencies.filter((dependency) => dependency.prerequisiteId === topic.id),
+            alignments: graph.alignments.filter((alignment) => alignment.topicId === topic.id),
         };
-    }, [graph.dependencies, selectedTopicId, topicById]);
+    }, [graph.alignments, graph.dependencies, selectedTopicId, topicById]);
 
     const flow = useMemo(() => buildFlow(filteredTopics, visibleEdges), [filteredTopics, visibleEdges]);
     const clusters = graph.clusters.filter(
@@ -154,6 +179,7 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                         onChange={(event) => {
                             setSubject(event.target.value);
                             setDomain("All domains");
+                            setAlignmentFilters(ALL_ALIGNMENT_FILTERS);
                             setSelectedTopicId(null);
                         }}
                     >
@@ -189,6 +215,120 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                         placeholder="Topic, concept, domain"
                         onChange={(event) => setQuery(event.target.value)}
                     />
+                </section>
+
+                <section className="panel">
+                    <div className="panel-heading">
+                        <h2>Curriculum Filter</h2>
+                        {alignmentFilterActive ? (
+                            <button
+                                type="button"
+                                className="text-button"
+                                onClick={() => {
+                                    setAlignmentFilters(ALL_ALIGNMENT_FILTERS);
+                                    setSelectedTopicId(null);
+                                }}
+                            >
+                                Reset
+                            </button>
+                        ) : null}
+                    </div>
+
+                    <label htmlFor="curriculum">Curriculum</label>
+                    <select
+                        id="curriculum"
+                        value={alignmentFilters.curriculum}
+                        disabled={alignmentOptions.curricula.length === 0}
+                        onChange={(event) => {
+                            setAlignmentFilters((filters) => ({
+                                ...filters,
+                                curriculum: event.target.value,
+                            }));
+                            setSelectedTopicId(null);
+                        }}
+                    >
+                        <option>{ALL_ALIGNMENT_FILTERS.curriculum}</option>
+                        {alignmentOptions.curricula.map((item) => (
+                            <option key={item} value={item}>
+                                {item}
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="filter-grid">
+                        <div>
+                            <label htmlFor="board">Board</label>
+                            <select
+                                id="board"
+                                value={alignmentFilters.board}
+                                disabled={alignmentOptions.boards.length === 0}
+                                onChange={(event) => {
+                                    setAlignmentFilters((filters) => ({
+                                        ...filters,
+                                        board: event.target.value,
+                                    }));
+                                    setSelectedTopicId(null);
+                                }}
+                            >
+                                <option>{ALL_ALIGNMENT_FILTERS.board}</option>
+                                {alignmentOptions.boards.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="classValue">Class</label>
+                            <select
+                                id="classValue"
+                                value={alignmentFilters.classValue}
+                                disabled={alignmentOptions.classes.length === 0}
+                                onChange={(event) => {
+                                    setAlignmentFilters((filters) => ({
+                                        ...filters,
+                                        classValue: event.target.value,
+                                    }));
+                                    setSelectedTopicId(null);
+                                }}
+                            >
+                                <option>{ALL_ALIGNMENT_FILTERS.classValue}</option>
+                                {alignmentOptions.classes.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <label htmlFor="strand">Strand</label>
+                    <select
+                        id="strand"
+                        value={alignmentFilters.strand}
+                        disabled={alignmentOptions.strands.length === 0}
+                        onChange={(event) => {
+                            setAlignmentFilters((filters) => ({
+                                ...filters,
+                                strand: event.target.value,
+                            }));
+                            setSelectedTopicId(null);
+                        }}
+                    >
+                        <option>{ALL_ALIGNMENT_FILTERS.strand}</option>
+                        {alignmentOptions.strands.map((item) => (
+                            <option key={item} value={item}>
+                                {item}
+                            </option>
+                        ))}
+                    </select>
+
+                    <p className="panel-note">
+                        {alignmentFilterActive
+                            ? "Strict mode: only directly aligned topics are shown."
+                            : "Choose a curriculum, board, class, or strand to filter aligned topics."}
+                    </p>
                 </section>
 
                 <section className="panel">
@@ -242,6 +382,10 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                         <strong>{graph.manifest.counts.topics}</strong>
                         <span>total topics</span>
                     </div>
+                    <div>
+                        <strong>{alignedTopicIds?.size ?? graph.manifest.counts.curriculumAlignments}</strong>
+                        <span>{alignmentFilterActive ? "aligned topics" : "alignments"}</span>
+                    </div>
                 </section>
 
                 <section className="panel cluster-panel">
@@ -265,6 +409,11 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                     <div>
                         <p>{graph.manifest.taxonomyVersion} dataset</p>
                         <h1>{subject} prerequisite map</h1>
+                        {alignmentFilterActive ? (
+                            <p className="pilot-note">
+                                Pilot filter: {filteredTopics.length} directly aligned topics shown.
+                            </p>
+                        ) : null}
                     </div>
                     <div className="legend">
             <span>
@@ -344,7 +493,27 @@ function TopicTile({
                     <dt>Standards</dt>
                     <dd>{selectedTopic.standards.length}</dd>
                 </div>
+                <div>
+                    <dt>Alignments</dt>
+                    <dd>{selectedTopic.alignments.length}</dd>
+                </div>
             </dl>
+            {selectedTopic.alignments.length > 0 ? (
+                <section>
+                    <h3>Curriculum Alignments</h3>
+                    <ul className="alignment-list">
+                        {selectedTopic.alignments.map((alignment) => (
+                            <li key={`${alignment.standardKey}-${alignment.matchType}`}>
+                                <strong>{alignment.board}</strong>
+                                <span>
+                  Class {alignment.class ?? "n/a"} · {alignment.strand ?? alignment.curriculum} ·{" "}
+                                    {alignment.matchType}
+                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            ) : null}
             <section>
                 <h3>Evidence</h3>
                 <ul className="evidence-list">
