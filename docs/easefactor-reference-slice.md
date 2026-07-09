@@ -111,6 +111,7 @@ Planner demo endpoint:
 
 ```http
 POST /planner/v1/next-best-topics
+POST /planner/v1/diagnostic-plan
 POST /planner/v1/remediation-plan
 ```
 
@@ -119,6 +120,17 @@ synthetic `masteryEvents`, and optional `contentMappings`. It derives mastery
 state in memory for the request and returns the deterministic
 `recommendNextBestTopics` payload. No learner, customer, or content records are
 persisted to `data/`.
+
+`/planner/v1/diagnostic-plan` accepts JSON with `targetTopicId`, optional
+`learnerId`, optional synthetic `masteryEvents`, and optional synthetic
+`contentMappings`. It returns the ordered hard prerequisites where diagnostic
+evidence should be collected first, skipping prerequisites that are already
+secure or sufficiently strong. Each step includes readiness context, gap context,
+an explanation, `assessableNow`, and matching reviewed or verified assessment
+content. `assessableNow` is true only when a reviewed or verified `assesses`
+mapping exists for that prerequisite. It does not create learner records,
+persist observations, authenticate callers, or broaden into a learning-path
+endpoint.
 
 `/planner/v1/remediation-plan` accepts JSON with `targetTopicId`, optional
 `learnerId`, optional synthetic `masteryEvents`, and optional synthetic
@@ -153,14 +165,14 @@ Shared synthetic POST endpoint errors:
 
 Use this slice as the seam between the taxonomy dataset and EaseFactor services:
 
-| Product Area            | Script Function                                            |
-|-------------------------|------------------------------------------------------------|
-| Taxonomy Importer       | `loadTaxonomyRelease`                                      |
-| Taxonomy Graph Store    | `makeGraphStore`                                           |
-| Learner Mastery Service | `deriveMasteryState`, `checkReadiness`, `findLearningGaps` |
-| Content Mapping Service | `validateContentMappings`                                  |
-| Planner Service         | `recommendNextBestTopics`, `buildRemediationPlan`          |
-| Local HTTP Reference    | `createEaseFactorApiServer`                                |
+| Product Area            | Script Function                                                          |
+|-------------------------|--------------------------------------------------------------------------|
+| Taxonomy Importer       | `loadTaxonomyRelease`                                                    |
+| Taxonomy Graph Store    | `makeGraphStore`                                                         |
+| Learner Mastery Service | `deriveMasteryState`, `checkReadiness`, `findLearningGaps`               |
+| Content Mapping Service | `validateContentMappings`                                                |
+| Planner Service         | `recommendNextBestTopics`, `buildDiagnosticPlan`, `buildRemediationPlan` |
+| Local HTTP Reference    | `createEaseFactorApiServer`                                              |
 
 ## Licensing And Privacy Boundaries
 

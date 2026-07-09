@@ -2,6 +2,7 @@ import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 
 import {
+    buildDiagnosticPlan,
     buildRemediationPlan,
     checkReadiness,
     deriveMasteryState,
@@ -440,6 +441,26 @@ const routePost = async (req, res, pathParts, {release, graph}) => {
         try {
             const masteryByTopic = deriveMasteryState(request.masteryEvents ?? []);
             const response = buildRemediationPlan(graph, {
+                ...request,
+                masteryByTopic,
+            });
+            sendJson(res, 200, response);
+        } catch (error) {
+            if (handleKnownGraphError(res, error)) {
+                return;
+            }
+            sendError(res, 400, 'invalid_planner_request', error.message, {taxonomyVersion: release.taxonomyVersion});
+        }
+        return;
+    }
+
+    if (pathParts.length === 3 && pathParts.join('/') === 'planner/v1/diagnostic-plan') {
+        const request = await readSyntheticMasteryRequest(req, res);
+        if (request === null) return;
+
+        try {
+            const masteryByTopic = deriveMasteryState(request.masteryEvents ?? []);
+            const response = buildDiagnosticPlan(graph, {
                 ...request,
                 masteryByTopic,
             });
