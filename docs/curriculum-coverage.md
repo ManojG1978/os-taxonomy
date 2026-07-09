@@ -107,7 +107,7 @@ sources containing 3,271 standards or standard codes.
 | `ib-pyp-pspe`               | IB PYP Personal, Social and Physical Education Scope and Sequence                                                           |           138 | No, codes only |
 | `ngss-k5`                   | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
 | `ngss-ms`                   | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
-| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            10 | No, codes only |
+| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            18 | No, codes only |
 
 ## Alignment Infrastructure
 
@@ -120,10 +120,11 @@ full-board coverage release.
 
 ## India Pilot Coverage
 
-`ncert-class6-math-2026-27` provides codes-only source keys for a small NCERT
-Class 6 Mathematics pilot slice. Alignment rows use `board: "CBSE"` so products
-can test CBSE-facing board, class, and subject filtering without treating the
-pilot as a full-board coverage release.
+`ncert-class6-math-2026-27` provides codes-only source keys for small NCERT
+Class 6 Mathematics pilot slices in Number System and Geometry/Measurement.
+Alignment rows use `board: "CBSE"` so products can test CBSE-facing board,
+class, subject, and strand filtering without treating the pilot as a full-board
+coverage release.
 
 ## US And UK Framing
 

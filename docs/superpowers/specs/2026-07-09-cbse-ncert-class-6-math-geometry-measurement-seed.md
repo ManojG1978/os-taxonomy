@@ -21,24 +21,23 @@ Potential source keys:
 
 ## Candidate Existing Marble Topics
 
-| Topic ID        | Domain      | Topic name                       | Candidate status | Review note                                        |
-|-----------------|-------------|----------------------------------|------------------|----------------------------------------------------|
-| `mt_u23IGDxOpk` | Geometry    | Parallel and perpendicular lines | candidate        | Lines and line relationships candidate.            |
-| `mt_MFfYcnv6Tv` | Geometry    | Right Angles & Turns             | candidate        | Right-angle and turn reasoning candidate.          |
-| `mt_8OAGVdeTJ_` | Geometry    | Understanding angles             | candidate        | Angle concept candidate.                           |
-| `mt_h0CVtqI2xo` | Geometry    | Types of angles                  | candidate        | Angle classification candidate.                    |
-| `mt_e4V6hvcuEJ` | Geometry    | Types of angles (age 8+)         | candidate        | Diagram convention and angle notation candidate.   |
-| `mt_WtcFrxGOgw` | Measurement | Perimeters of polygons           | candidate        | Perimeter from side lengths candidate.             |
-| `mt_6xNmQLzuqm` | Measurement | Understanding Area               | candidate        | Unit-square area candidate.                        |
-| `mt_Jvvh5P06NV` | Measurement | Area by Tiling                   | candidate        | Rectangle area through tiling candidate.           |
-| `mt_eMtV6tBSJm` | Measurement | Area of compound shapes          | candidate        | Additive area reasoning candidate.                 |
-| `mt_eiB3-6pu6a` | Measurement | Estimating answers (age 9+)      | candidate        | Rectangle and square formula candidate.            |
-| `mt_n0AlyLQwC9` | Measurement | Perimeter of Compound Shapes     | candidate        | Composite rectilinear perimeter candidate.         |
-| `mt_MJZA90uc6H` | Measurement | Perimeter (age 10+)              | candidate        | Same-area and same-perimeter comparison candidate. |
+| Topic ID        | Domain      | Topic name                       | Candidate status | Review note                        |
+|-----------------|-------------|----------------------------------|------------------|------------------------------------|
+| `mt_u23IGDxOpk` | Geometry    | Parallel and perpendicular lines | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_MFfYcnv6Tv` | Geometry    | Right Angles & Turns             | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_8OAGVdeTJ_` | Geometry    | Understanding angles             | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_h0CVtqI2xo` | Geometry    | Types of angles                  | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_e4V6hvcuEJ` | Geometry    | Types of angles (age 8+)         | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_WtcFrxGOgw` | Measurement | Perimeters of polygons           | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_6xNmQLzuqm` | Measurement | Understanding Area               | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_Jvvh5P06NV` | Measurement | Area by Tiling                   | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_eMtV6tBSJm` | Measurement | Area of compound shapes          | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_eiB3-6pu6a` | Measurement | Estimating answers (age 9+)      | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_n0AlyLQwC9` | Measurement | Perimeter of Compound Shapes     | reviewed         | Mapped into the M6.GM pilot slice. |
+| `mt_MJZA90uc6H` | Measurement | Perimeter (age 10+)              | reviewed         | Mapped into the M6.GM pilot slice. |
 
 ## Next Tranche Boundary
 
-The next data tranche should add only the reviewed subset of these keys and
-rows. It should update `data/curriculum-standards.json`,
-`data/curriculum-alignments.json`, `data/manifest.json`, and public docs only
-after manual review is complete.
+The reviewed tranche adds eight M6.GM source keys and 16 alignment rows across
+these existing Marble topic IDs. The source remains codes-only: no upstream
+textbook, syllabus, exercise, exemplar, or standard text is included.
