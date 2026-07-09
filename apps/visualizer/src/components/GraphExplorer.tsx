@@ -11,6 +11,8 @@ import {
     getAlignmentOptions,
     isAlignmentFilterActive,
 } from "@/lib/alignmentFilters";
+import {getTopicPosition} from "@/lib/graphLayout";
+import {getMiniMapTheme} from "@/lib/graphTheme";
 import type {Dependency, TaxonomyGraph, Topic} from "@/lib/taxonomy";
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -142,6 +144,11 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
     }, [graph.alignments, graph.dependencies, selectedTopicId, topicById]);
 
     const flow = useMemo(() => buildFlow(filteredTopics, visibleEdges), [filteredTopics, visibleEdges]);
+    const flowKey = useMemo(
+        () => flow.nodes.map((node) => node.id).join("|"),
+        [flow.nodes],
+    );
+    const miniMapTheme = useMemo(() => getMiniMapTheme(theme), [theme]);
     const clusters = graph.clusters.filter(
         (cluster) =>
             cluster.subject === subject &&
@@ -427,9 +434,11 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
 
                 <div className="graph-frame">
                     <ReactFlow
+                        key={flowKey}
                         nodes={flow.nodes}
                         edges={flow.edges}
                         fitView
+                        fitViewOptions={{padding: 0.18}}
                         minZoom={0.2}
                         maxZoom={1.7}
                         onNodeClick={(_, node) => setSelectedTopicId(node.id)}
@@ -440,7 +449,10 @@ export function GraphExplorer({graph}: GraphExplorerProps) {
                         <MiniMap
                             pannable
                             zoomable
+                            bgColor={miniMapTheme.bgColor}
+                            maskColor={miniMapTheme.maskColor}
                             nodeColor={(node) => node.style?.background?.toString() ?? "#6c7684"}
+                            nodeStrokeColor={miniMapTheme.nodeStrokeColor}
                         />
                     </ReactFlow>
                     {selectedTopic ? (
@@ -579,10 +591,9 @@ function buildFlow(topics: Topic[], dependencies: Dependency[]): { nodes: Node[]
 
         return {
             id: topic.id,
-            position: {
-                x: domainColumn * 260 + row * 20,
-                y: (topic.ageRangeStart - 4) * 130 + row * 34,
-            },
+            position: getTopicPosition({ageRangeStart: topic.ageRangeStart, domainColumn, row}),
+            width: diameter,
+            height: diameter,
             data: {
                 label: "",
             },
