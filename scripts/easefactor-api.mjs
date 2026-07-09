@@ -2,7 +2,9 @@ import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 
 import {
+    checkReadiness,
     deriveMasteryState,
+    findLearningGaps,
     loadTaxonomyRelease,
     makeGraphStore,
     recommendNextBestTopics,
@@ -258,6 +260,22 @@ const handleKnownGraphError = (res, error) => {
     return false;
 };
 
+const readSyntheticMasteryRequest = async (req, res) => {
+    try {
+        return await readJsonBody(req);
+    } catch (error) {
+        if (error.code === 'invalid_json') {
+            sendError(res, 400, 'invalid_json', 'Request body must be valid JSON.');
+            return null;
+        }
+        if (error.code === 'request_body_too_large') {
+            sendError(res, 413, 'request_body_too_large', 'Request body exceeds 1 MB.');
+            return null;
+        }
+        throw error;
+    }
+};
+
 const routeGet = (res, pathParts, searchParams, {release, graph}) => {
     const query = parseQuery(searchParams);
 
@@ -395,20 +413,8 @@ const routeGet = (res, pathParts, searchParams, {release, graph}) => {
 
 const routePost = async (req, res, pathParts, {release, graph}) => {
     if (pathParts.length === 3 && pathParts.join('/') === 'planner/v1/next-best-topics') {
-        let request;
-        try {
-            request = await readJsonBody(req);
-        } catch (error) {
-            if (error.code === 'invalid_json') {
-                sendError(res, 400, 'invalid_json', 'Request body must be valid JSON.');
-                return;
-            }
-            if (error.code === 'request_body_too_large') {
-                sendError(res, 413, 'request_body_too_large', 'Request body exceeds 1 MB.');
-                return;
-            }
-            throw error;
-        }
+        const request = await readSyntheticMasteryRequest(req, res);
+        if (request === null) return;
 
         try {
             const masteryByTopic = deriveMasteryState(request.masteryEvents ?? []);
@@ -424,6 +430,39 @@ const routePost = async (req, res, pathParts, {release, graph}) => {
             sendError(res, 400, 'invalid_planner_request', error.message, {taxonomyVersion: release.taxonomyVersion});
         }
         return;
+    }
+
+    if (pathParts.length === 4 && pathParts[0] === 'learners' && pathParts[1] === 'v1') {
+        const endpoint = pathParts[2];
+        const topicId = pathParts[3];
+        const request = await readSyntheticMasteryRequest(req, res);
+        if (request === null) return;
+
+        try {
+            const masteryByTopic = deriveMasteryState(request.masteryEvents ?? []);
+
+            if (endpoint === 'readiness') {
+                sendJson(res, 200, {
+                    learnerId: request.learnerId ?? null,
+                    ...checkReadiness(graph, masteryByTopic, topicId),
+                });
+                return;
+            }
+
+            if (endpoint === 'learning-gaps') {
+                sendJson(res, 200, {
+                    learnerId: request.learnerId ?? null,
+                    ...findLearningGaps(graph, masteryByTopic, topicId),
+                });
+                return;
+            }
+        } catch (error) {
+            if (handleKnownGraphError(res, error)) {
+                return;
+            }
+            sendError(res, 400, 'invalid_learner_request', error.message, {taxonomyVersion: release.taxonomyVersion});
+            return;
+        }
     }
 
     sendError(res, 404, 'not_found', 'Endpoint not found.');

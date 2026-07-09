@@ -243,6 +243,143 @@ test('POST /planner/v1/next-best-topics derives mastery from JSON events', async
     });
 });
 
+test('POST /learners/v1/readiness/:topicId returns ready and blocked status from synthetic mastery events', async () => {
+    await withServer(async (baseUrl) => {
+        const readyResponse = await fetch(`${baseUrl}/learners/v1/readiness/mt_FHIAv6dfhU`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                learnerId: 'synthetic-learner',
+                masteryEvents: [
+                    {
+                        learnerId: 'synthetic-learner',
+                        topicId: 'mt_K5jM7vlVhA',
+                        result: 'secure',
+                        score: 0.96,
+                        observedAt: '2026-07-09T10:00:00.000Z',
+                    },
+                    {
+                        learnerId: 'synthetic-learner',
+                        topicId: 'mt_nZkL5-XjRX',
+                        result: 'secure',
+                        score: 0.94,
+                        observedAt: '2026-07-09T10:05:00.000Z',
+                    },
+                ],
+            }),
+        });
+        const readyBody = await readyResponse.json();
+
+        const blockedResponse = await fetch(`${baseUrl}/learners/v1/readiness/mt_FHIAv6dfhU`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                learnerId: 'synthetic-learner',
+                masteryEvents: [
+                    {
+                        learnerId: 'synthetic-learner',
+                        topicId: 'mt_K5jM7vlVhA',
+                        result: 'partial',
+                        score: 0.5,
+                        observedAt: '2026-07-09T10:00:00.000Z',
+                    },
+                ],
+            }),
+        });
+        const blockedBody = await blockedResponse.json();
+
+        assert.equal(readyResponse.status, 200);
+        assert.equal(readyBody.taxonomyVersion, 'v1');
+        assert.equal(readyBody.learnerId, 'synthetic-learner');
+        assert.equal(readyBody.topicId, 'mt_FHIAv6dfhU');
+        assert.equal(readyBody.readyToLearn, true);
+        assert.deepEqual(readyBody.blockedBy, []);
+
+        assert.equal(blockedResponse.status, 200);
+        assert.equal(blockedBody.learnerId, 'synthetic-learner');
+        assert.equal(blockedBody.readyToLearn, false);
+        assert.ok(blockedBody.blockedBy.some((row) => row.topicId === 'mt_K5jM7vlVhA' && row.status === 'developing'));
+        assert.ok(blockedBody.blockedBy.some((row) => row.topicId === 'mt_nZkL5-XjRX' && row.status === 'unseen'));
+    });
+});
+
+test('POST /learners/v1/learning-gaps/:topicId ranks missing and weak prerequisites', async () => {
+    await withServer(async (baseUrl) => {
+        const response = await fetch(`${baseUrl}/learners/v1/learning-gaps/mt_FHIAv6dfhU`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                learnerId: 'synthetic-learner',
+                masteryEvents: [
+                    {
+                        learnerId: 'synthetic-learner',
+                        topicId: 'mt_K5jM7vlVhA',
+                        result: 'partial',
+                        score: 0.5,
+                        observedAt: '2026-07-09T10:00:00.000Z',
+                    },
+                ],
+            }),
+        });
+        const body = await response.json();
+
+        assert.equal(response.status, 200);
+        assert.equal(body.taxonomyVersion, 'v1');
+        assert.equal(body.learnerId, 'synthetic-learner');
+        assert.equal(body.topicId, 'mt_FHIAv6dfhU');
+        assert.deepEqual(body.gaps.map((row) => row.rank), [1, 2]);
+        assert.deepEqual(body.gaps.map((row) => row.topicId), ['mt_nZkL5-XjRX', 'mt_K5jM7vlVhA']);
+        assert.equal(body.gaps[0].status, 'unseen');
+        assert.equal(body.gaps[1].status, 'developing');
+    });
+});
+
+test('POST learner readiness and gap endpoints return 404 for unknown topics', async () => {
+    await withServer(async (baseUrl) => {
+        const readiness = await fetch(`${baseUrl}/learners/v1/readiness/mt_missing`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({masteryEvents: []}),
+        });
+        const gaps = await fetch(`${baseUrl}/learners/v1/learning-gaps/mt_missing`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({masteryEvents: []}),
+        });
+        const readinessBody = await readiness.json();
+        const gapsBody = await gaps.json();
+
+        assert.equal(readiness.status, 404);
+        assert.equal(readinessBody.error.code, 'unknown_topic_id');
+        assert.equal(readinessBody.error.details.topicId, 'mt_missing');
+        assert.equal(gaps.status, 404);
+        assert.equal(gapsBody.error.code, 'unknown_topic_id');
+        assert.equal(gapsBody.error.details.topicId, 'mt_missing');
+    });
+});
+
+test('POST learner readiness and gap endpoints reject malformed JSON', async () => {
+    await withServer(async (baseUrl) => {
+        const readiness = await fetch(`${baseUrl}/learners/v1/readiness/mt_FHIAv6dfhU`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: '{"masteryEvents":',
+        });
+        const gaps = await fetch(`${baseUrl}/learners/v1/learning-gaps/mt_FHIAv6dfhU`, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: '{"masteryEvents":',
+        });
+        const readinessBody = await readiness.json();
+        const gapsBody = await gaps.json();
+
+        assert.equal(readiness.status, 400);
+        assert.equal(readinessBody.error.code, 'invalid_json');
+        assert.equal(gaps.status, 400);
+        assert.equal(gapsBody.error.code, 'invalid_json');
+    });
+});
+
 test('POST /planner/v1/next-best-topics rejects malformed JSON', async () => {
     await withServer(async (baseUrl) => {
         const response = await fetch(`${baseUrl}/planner/v1/next-best-topics`, {

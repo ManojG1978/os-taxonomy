@@ -119,6 +119,25 @@ state in memory for the request and returns the deterministic
 `recommendNextBestTopics` payload. No learner, customer, or content records are
 persisted to `data/`.
 
+Learner demo endpoints:
+
+```http
+POST /learners/v1/readiness/:topicId
+POST /learners/v1/learning-gaps/:topicId
+```
+
+These endpoints accept JSON with optional synthetic `masteryEvents` and optional
+`learnerId`. They derive mastery state in memory for the single request, then
+return `checkReadiness` or `findLearningGaps` for the requested taxonomy topic.
+They do not create learner records, persist observations, authenticate callers,
+or add database/product backend behavior.
+
+Shared learner endpoint errors:
+
+- malformed JSON returns `400` with `invalid_json`;
+- unknown topic IDs return `404` with `unknown_topic_id`;
+- oversized request bodies return `413` with `request_body_too_large`.
+
 ## Product Service Mapping
 
 Use this slice as the seam between the taxonomy dataset and EaseFactor services:
