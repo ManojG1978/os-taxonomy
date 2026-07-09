@@ -44,6 +44,9 @@ curriculum-aligned content.
 - [Data model](data-model.md): field-by-field explanation of the JSON files.
 - [Curriculum coverage](curriculum-coverage.md): countries, curricula, text
   inclusion, and subject/domain coverage.
+- [EaseFactor taxonomy integration spec](easefactor-taxonomy-integration-spec.md):
+  product philosophy, architecture, API shape, and prerequisites for using the
+  taxonomy inside an adaptive learning application.
 - [Validation and release workflow](validation-and-release.md): how to verify
   integrity, checksums, and line endings.
 - [Licensing and provenance](licensing-and-provenance.md): how the repo's
