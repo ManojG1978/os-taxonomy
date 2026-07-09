@@ -47,6 +47,9 @@ curriculum-aligned content.
 - [EaseFactor taxonomy integration spec](easefactor-taxonomy-integration-spec.md):
   product philosophy, architecture, API shape, and prerequisites for using the
   taxonomy inside an adaptive learning application.
+- [EaseFactor reference slice](easefactor-reference-slice.md): dependency-free
+  Class 6 Mathematics Number System integration example for the first build chain
+  and service mapping.
 - [Validation and release workflow](validation-and-release.md): how to verify
   integrity, checksums, and line endings.
 - [Licensing and provenance](licensing-and-provenance.md): how the repo's
