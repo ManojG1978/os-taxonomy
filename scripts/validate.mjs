@@ -43,6 +43,11 @@ check(
     manifest.counts?.curriculumAlignments === alignments.alignments.length,
     `manifest: curriculumAlignments ${manifest.counts?.curriculumAlignments} != ${alignments.alignments.length}`,
 );
+check(
+    JSON.stringify([...(standards.codesOnlySources ?? [])].sort()) ===
+    JSON.stringify([...(manifest.codesOnlySources ?? [])].sort()),
+    'manifest codesOnlySources does not match curriculum-standards codesOnlySources',
+);
 
 // --- topic ids + basic field validity --------------------------------------
 const TYPES = new Set(['CONCEPTUAL', 'PROCEDURAL', 'REPRESENTATIONAL', 'LANGUAGE', 'META']);

@@ -38,6 +38,7 @@ The validator checks:
 - Standard keys match `<curriculum-slug>:<code>`.
 - Standard keys are unique.
 - Codes-only sources do not include a `data` object with verbatim text.
+- Manifest `codesOnlySources` matches `data/curriculum-standards.json`.
 - Dependency endpoints reference existing topic IDs.
 - Dependencies are not self-dependencies.
 - Dependency strength is `hard` or `soft`.
@@ -84,6 +85,12 @@ When editing `data/curriculum-alignments.json`, update its declared
 `alignmentCount`, update `data/manifest.json` byte count and SHA-256 checksum,
 and run `npm run validate`.
 
+For codes-only India pilot sources, confirm that source entries contain only
+`key` and `code`, that the source slug appears in `codesOnlySources`, and that
+no upstream textbook, syllabus, exercise, exemplar, or standard text appears in
+`data/curriculum-standards.json`, `data/curriculum-alignments.json`, mapping
+notes, or release docs.
+
 When editing only documentation, validation is still cheap and useful because it
 confirms the checkout remains release-consistent.
 
@@ -96,9 +103,10 @@ Included:
 
 - 1,590 micro-topics.
 - 3,221 prerequisite dependencies.
-- 7 curricula.
-- 3,261 standards or standard codes.
+- 8 curricula.
+- 3,271 standards or standard codes.
 - 1,859 topic-standard links.
+- 18 curriculum alignment rows.
 - 183 domain clusters.
 - JSON Schemas and validator.
 

@@ -4,9 +4,10 @@
     "c3-social-studies",
     "ib-pyp-pspe",
     "ngss-k5",
-    "ngss-ms"
+    "ngss-ms",
+    "ncert-class6-math-2026-27"
   ],
-  "curriculumCount": 7,
+  "curriculumCount": 8,
   "curricula": [
     {
       "slug": "uk-nc-2013",
@@ -37397,6 +37398,58 @@
         {
           "key": "ngss-ms:MS-PS4-3",
           "code": "MS-PS4-3"
+        }
+      ]
+    },
+    {
+      "slug": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "name": "NCERT Class 6 Mathematics",
+      "version": "2026-27",
+      "sourceUrl": "https://ncert.nic.in/textbook.php?fegp1=0-10",
+      "textIncluded": false,
+      "license": "Codes-only source keys included. No upstream textbook, syllabus, exercise, or standard text is included. See PROVENANCE.md.",
+      "topicCount": 10,
+      "topics": [
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.001",
+          "code": "M6.NS.001"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.002",
+          "code": "M6.NS.002"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.003",
+          "code": "M6.NS.003"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.004",
+          "code": "M6.NS.004"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.005",
+          "code": "M6.NS.005"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.006",
+          "code": "M6.NS.006"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.007",
+          "code": "M6.NS.007"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.008",
+          "code": "M6.NS.008"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.009",
+          "code": "M6.NS.009"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.NS.010",
+          "code": "M6.NS.010"
         }
       ]
     }

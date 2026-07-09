@@ -1,7 +1,7 @@
 # Curriculum Coverage
 
-The release covers 1,590 micro-topics across 8 subjects, aligned to 7 curriculum
-sources containing 3,261 standards or standard codes.
+The release covers 1,590 micro-topics across 8 subjects, aligned to 8 curriculum
+sources containing 3,271 standards or standard codes.
 
 ## Subject Coverage
 
@@ -98,24 +98,32 @@ sources containing 3,261 standards or standard codes.
 
 ## Curriculum Sources
 
-| Slug                | Curriculum                                                                                                                  | Topic records | Text included  |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------:|----------------|
-| `uk-nc-2013`        | The National Curriculum in England: Key stages 1 and 2 framework document                                                   |         1,117 | Yes            |
-| `ccss-ela`          | Common Core State Standards for English Language Arts & Literacy in History/Social Studies, Science, and Technical Subjects |         1,028 | Yes            |
-| `ccss-math`         | Common Core State Standards for Mathematics                                                                                 |           503 | Yes            |
-| `c3-social-studies` | C3 Framework for Social Studies State Standards                                                                             |           338 | No, codes only |
-| `ib-pyp-pspe`       | IB PYP Personal, Social and Physical Education Scope and Sequence                                                           |           138 | No, codes only |
-| `ngss-k5`           | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
-| `ngss-ms`           | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
+| Slug                        | Curriculum                                                                                                                  | Topic records | Text included  |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------:|----------------|
+| `uk-nc-2013`                | The National Curriculum in England: Key stages 1 and 2 framework document                                                   |         1,117 | Yes            |
+| `ccss-ela`                  | Common Core State Standards for English Language Arts & Literacy in History/Social Studies, Science, and Technical Subjects |         1,028 | Yes            |
+| `ccss-math`                 | Common Core State Standards for Mathematics                                                                                 |           503 | Yes            |
+| `c3-social-studies`         | C3 Framework for Social Studies State Standards                                                                             |           338 | No, codes only |
+| `ib-pyp-pspe`               | IB PYP Personal, Social and Physical Education Scope and Sequence                                                           |           138 | No, codes only |
+| `ngss-k5`                   | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
+| `ngss-ms`                   | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
+| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            10 | No, codes only |
 
 ## Alignment Infrastructure
 
 The release includes `data/curriculum-alignments.json` as the richer
-topic-to-standard alignment layer for future board, class, subject, and
-curriculum filtering.
+topic-to-standard alignment layer for board, class, subject, and curriculum
+filtering.
 
-In this tranche the file is empty. No NCERT, CBSE, CISCE, ICSE, or ISC source
-records or mappings are included yet.
+The file currently includes a small reviewed India pilot mapping. It is not a
+full-board coverage release.
+
+## India Pilot Coverage
+
+`ncert-class6-math-2026-27` provides codes-only source keys for a small NCERT
+Class 6 Mathematics pilot slice. Alignment rows use `board: "CBSE"` so products
+can test CBSE-facing board, class, and subject filtering without treating the
+pilot as a full-board coverage release.
 
 ## US And UK Framing
 
@@ -144,6 +152,7 @@ Codes only:
 - `ngss-ms`
 - `c3-social-studies`
 - `ib-pyp-pspe`
+- `ncert-class6-math-2026-27`
 
 Do not infer missing standard text from the codes-only files. If a product or
 downstream dataset needs full text for those sources, rights clearance must be

@@ -44,6 +44,17 @@ For encumbered sources we ship only the **standard code** (e.g. `1-ESS1-1`) and 
 - **License:** IB content is copyrighted and IBO is protective of it; redistribution requires explicit IB permission. This is the most restrictive source.
 - **We ship:** codes/keys only. Do not ship full text without IB permission.
 
+## NCERT Class 6 Mathematics Pilot
+
+`ncert-class6-math-2026-27` is an India pilot source for NCERT Class 6
+Mathematics. The repository ships only source keys and Marble-authored mapping
+metadata for this pilot. It does not include upstream textbook, syllabus,
+exercise, exemplar, or standard text.
+
+Source reference:
+
+- NCERT textbook listing: https://ncert.nic.in/textbook.php?fegp1=0-10
+
 ## Changing what ships
 
 The export tool takes a per-source switch. To (re)include a source's full text after clearing rights, regenerate with that slug removed from the codes-only set:

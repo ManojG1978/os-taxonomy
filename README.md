@@ -78,6 +78,10 @@ workflow, and licensing guidance, see [`docs/`](docs/).
 For richer curriculum filtering, use [`data/curriculum-alignments.json`](data/curriculum-alignments.json). It keeps
 board, class, subject, match type, confidence, and mapping-source metadata outside the canonical topic records.
 
+The first India pilot source, `ncert-class6-math-2026-27`, is shipped as
+codes-only source keys plus Marble-authored alignment metadata. It does not
+include upstream textbook, syllabus, exercise, exemplar, or standard text.
+
 ### A dependency
 
 ```json

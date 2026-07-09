@@ -6,7 +6,8 @@
     "c3-social-studies",
     "ib-pyp-pspe",
     "ngss-k5",
-    "ngss-ms"
+    "ngss-ms",
+    "ncert-class6-math-2026-27"
   ],
   "counts": {
     "topics": 1590,
@@ -21,11 +22,11 @@
       "Science": 547
     },
     "dependencies": 3221,
-    "curricula": 7,
-    "curriculumStandards": 3261,
+    "curricula": 8,
+    "curriculumStandards": 3271,
     "topicStandardLinks": 1859,
     "clusters": 183,
-    "curriculumAlignments": 0
+    "curriculumAlignments": 18
   },
   "files": {
     "topics.json": {
@@ -37,16 +38,16 @@
       "sha256": "86a24efb44b480e5be23082b4bdea653f69f6d6fd54c5409a2f33c185be1d87f"
     },
     "curriculum-standards.json": {
-      "bytes": 1621982,
-      "sha256": "33a835abaafa68ed736f2102d5502ff030d6448dc55ae45718be05a78f5fc73f"
+      "bytes": 1623524,
+      "sha256": "523639e8d8278fc454d67ea6c7a7f8714753e37b3c6795588e2bbaac7d48937a"
     },
     "clusters.json": {
       "bytes": 61019,
       "sha256": "d7dd0ca7fa1e6a5f3f54eb6482f47587e8508a199340e4ff58f2284cceda5ed0"
     },
     "curriculum-alignments.json": {
-      "bytes": 65,
-      "sha256": "2fb37c9e374ccf8518976763a6049674b3895ab7ffab5e2cb8e29c2eb561ffd7"
+      "bytes": 6789,
+      "sha256": "4959c13922c06c6dc97ae664eb001b3cd2a58139fef7dfc1f1823b5e68f47ea9"
     }
   },
   "excluded": [
