@@ -1,5 +1,43 @@
+# Dependencies
 node_modules/
-.DS_Store
+
+# React / Next.js / TypeScript build output
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
 .env
 .env.*
+!.env.example
+!.env.local.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains / WebStorm
+.idea/
+*.iml
+*.iws
+*.ipr

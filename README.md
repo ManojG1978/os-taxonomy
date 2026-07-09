@@ -45,6 +45,9 @@ All data lives in [`data/`](data/) as UTF-8 JSON. See [`schema/`](schema/) for J
 | [`data/clusters.json`](data/clusters.json) | Parent-friendly domain summaries. |
 | [`data/manifest.json`](data/manifest.json) | Counts, per-subject breakdown, per-file checksums. |
 
+For implementation notes, data model details, curriculum coverage, validation
+workflow, and licensing guidance, see [`docs/`](docs/).
+
 ### A topic
 
 ```json
