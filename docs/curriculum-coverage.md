@@ -108,6 +108,15 @@ sources containing 3,261 standards or standard codes.
 | `ngss-k5`           | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
 | `ngss-ms`           | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
 
+## Alignment Infrastructure
+
+The release includes `data/curriculum-alignments.json` as the richer
+topic-to-standard alignment layer for future board, class, subject, and
+curriculum filtering.
+
+In this tranche the file is empty. No NCERT, CBSE, CISCE, ICSE, or ISC source
+records or mappings are included yet.
+
 ## US And UK Framing
 
 The primary US/UK curriculum anchors are:

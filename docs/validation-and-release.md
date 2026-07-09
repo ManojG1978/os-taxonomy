@@ -27,6 +27,12 @@ The validator checks:
 - Topic descriptions are non-empty strings.
 - Topic `evidence` fields are arrays.
 - Topic IDs are unique.
+- Declared alignment count equals the length of `alignments`.
+- Alignment topic IDs resolve to known topics.
+- Alignment standard keys resolve to known curriculum standards.
+- Alignment curriculum slugs resolve and match the `standardKey` prefix.
+- Alignment `matchType`, `confidence`, and `source` values use allowed enums.
+- Duplicate `(topicId, standardKey)` alignment pairs are rejected.
 - Curriculum `textIncluded` agrees with `codesOnlySources`.
 - Curriculum `topicCount` equals the length of each curriculum's `topics`.
 - Standard keys match `<curriculum-slug>:<code>`.
@@ -73,6 +79,10 @@ When editing `data/*.json`:
 3. Update declared counts when adding or removing records.
 4. Update `data/manifest.json` byte counts and SHA-256 checksums.
 5. Run `npm run validate`.
+
+When editing `data/curriculum-alignments.json`, update its declared
+`alignmentCount`, update `data/manifest.json` byte count and SHA-256 checksum,
+and run `npm run validate`.
 
 When editing only documentation, validation is still cheap and useful because it
 confirms the checkout remains release-consistent.

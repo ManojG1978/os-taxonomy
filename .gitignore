@@ -26,6 +26,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Superpowers scratch state
+.superpowers/sdd/
+
 # Environment files
 .env
 .env.*

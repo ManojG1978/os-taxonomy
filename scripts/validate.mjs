@@ -9,10 +9,10 @@
  *   node scripts/validate.mjs
  */
 
-import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 const DATA = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'data');
 const load = (name) => JSON.parse(readFileSync(resolve(DATA, name), 'utf8'));
@@ -27,6 +27,7 @@ const topics = load('topics.json');
 const deps = load('dependencies.json');
 const standards = load('curriculum-standards.json');
 const clusters = load('clusters.json');
+const alignments = load('curriculum-alignments.json');
 const manifest = load('manifest.json');
 
 // --- declared counts match reality -----------------------------------------
@@ -34,6 +35,14 @@ check(topics.topicCount === topics.topics.length, `topics: topicCount ${topics.t
 check(deps.edgeCount === deps.dependencies.length, `dependencies: edgeCount ${deps.edgeCount} != ${deps.dependencies.length}`);
 check(standards.curriculumCount === standards.curricula.length, `curricula: curriculumCount != length`);
 check(clusters.clusterCount === clusters.clusters.length, `clusters: clusterCount != length`);
+check(
+    alignments.alignmentCount === alignments.alignments.length,
+    `alignments: alignmentCount ${alignments.alignmentCount} != ${alignments.alignments.length}`,
+);
+check(
+    manifest.counts?.curriculumAlignments === alignments.alignments.length,
+    `manifest: curriculumAlignments ${manifest.counts?.curriculumAlignments} != ${alignments.alignments.length}`,
+);
 
 // --- topic ids + basic field validity --------------------------------------
 const TYPES = new Set(['CONCEPTUAL', 'PROCEDURAL', 'REPRESENTATIONAL', 'LANGUAGE', 'META']);
@@ -50,8 +59,10 @@ for (const t of topics.topics) {
 // --- standard keys ----------------------------------------------------------
 const standardKeys = new Set();
 const codesOnly = new Set(standards.codesOnlySources ?? []);
+const curriculumSlugs = new Set();
 for (const c of standards.curricula) {
   const expectFullText = !codesOnly.has(c.slug);
+    curriculumSlugs.add(c.slug);
   check(c.textIncluded === expectFullText, `curriculum ${c.slug}: textIncluded ${c.textIncluded} disagrees with codesOnlySources`);
   check(c.topicCount === c.topics.length, `curriculum ${c.slug}: topicCount != length`);
   for (const s of c.topics) {
@@ -83,6 +94,33 @@ for (const t of topics.topics) {
 }
 if (danglingRefs > 5) errors.push(`…and ${danglingRefs - 5} more unknown standard references`);
 
+// --- referential integrity: curriculum alignments --------------------------
+const MATCH_TYPES = new Set(['direct', 'partial', 'supporting', 'extension']);
+const CONFIDENCE_LEVELS = new Set(['machine', 'reviewed', 'verified']);
+const ALIGNMENT_SOURCES = new Set(['manual', 'machine', 'imported']);
+const alignmentPairs = new Set();
+
+for (const a of alignments.alignments) {
+    check(typeof a.topicId === 'string' && a.topicId.startsWith('mt_'), `alignment topicId malformed: ${a.topicId}`);
+    check(topicIds.has(a.topicId), `alignment references unknown topicId ${a.topicId}`);
+    check(standardKeys.has(a.standardKey), `alignment references unknown standardKey ${a.standardKey}`);
+    check(curriculumSlugs.has(a.curriculum), `alignment references unknown curriculum ${a.curriculum}`);
+    check(typeof a.country === 'string' && a.country.trim().length > 0, `alignment ${a.topicId}/${a.standardKey}: empty country`);
+    check(typeof a.board === 'string' && a.board.trim().length > 0, `alignment ${a.topicId}/${a.standardKey}: empty board`);
+    check(typeof a.subject === 'string' && a.subject.trim().length > 0, `alignment ${a.topicId}/${a.standardKey}: empty subject`);
+    check(
+        typeof a.standardKey === 'string' && a.standardKey.startsWith(`${a.curriculum}:`),
+        `alignment standardKey ${a.standardKey} does not match curriculum ${a.curriculum}`,
+    );
+    check(MATCH_TYPES.has(a.matchType), `alignment ${a.topicId}/${a.standardKey}: bad matchType ${a.matchType}`);
+    check(CONFIDENCE_LEVELS.has(a.confidence), `alignment ${a.topicId}/${a.standardKey}: bad confidence ${a.confidence}`);
+    check(ALIGNMENT_SOURCES.has(a.source), `alignment ${a.topicId}/${a.standardKey}: bad source ${a.source}`);
+
+    const pair = `${a.topicId}\u0000${a.standardKey}`;
+    if (alignmentPairs.has(pair)) errors.push(`duplicate alignment: ${a.topicId} -> ${a.standardKey}`);
+    alignmentPairs.add(pair);
+}
+
 // --- manifest checksums -----------------------------------------------------
 for (const [name, meta] of Object.entries(manifest.files ?? {})) {
   const actual = createHash('sha256').update(bytesOf(name)).digest('hex');
@@ -97,6 +135,6 @@ if (errors.length) {
 }
 console.log(
   `✓ valid — ${topics.topics.length} topics, ${deps.dependencies.length} dependencies, ` +
-    `${standardKeys.size} standards, ${clusters.clusters.length} clusters. ` +
+    `${standardKeys.size} standards, ${alignments.alignments.length} alignments, ${clusters.clusters.length} clusters. ` +
     `Referential integrity + checksums OK.`,
 );

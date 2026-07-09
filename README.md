@@ -37,13 +37,14 @@ Most curriculum data is either a flat list of standards or locked inside a produ
 
 All data lives in [`data/`](data/) as UTF-8 JSON. See [`schema/`](schema/) for JSON Schemas and [`manifest.json`](data/manifest.json) for counts + SHA-256 checksums.
 
-| File | What it holds |
-|---|---|
-| [`data/topics.json`](data/topics.json) | The micro-topics (graph **nodes**). |
-| [`data/dependencies.json`](data/dependencies.json) | Prerequisite **edges** (`topicId` depends on `prerequisiteId`). |
-| [`data/curriculum-standards.json`](data/curriculum-standards.json) | The source curriculum standards, grouped by curriculum. |
-| [`data/clusters.json`](data/clusters.json) | Parent-friendly domain summaries. |
-| [`data/manifest.json`](data/manifest.json) | Counts, per-subject breakdown, per-file checksums. |
+| File                                                                 | What it holds                                                                            |
+|----------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| [`data/topics.json`](data/topics.json)                               | The micro-topics (graph **nodes**).                                                      |
+| [`data/dependencies.json`](data/dependencies.json)                   | Prerequisite **edges** (`topicId` depends on `prerequisiteId`).                          |
+| [`data/curriculum-standards.json`](data/curriculum-standards.json)   | The source curriculum standards, grouped by curriculum.                                  |
+| [`data/curriculum-alignments.json`](data/curriculum-alignments.json) | Rich topic↔standard alignments used for board, class, subject, and curriculum filtering. |
+| [`data/clusters.json`](data/clusters.json)                           | Parent-friendly domain summaries.                                                        |
+| [`data/manifest.json`](data/manifest.json)                           | Counts, per-subject breakdown, per-file checksums.                                       |
 
 For implementation notes, data model details, curriculum coverage, validation
 workflow, and licensing guidance, see [`docs/`](docs/).
@@ -73,6 +74,9 @@ workflow, and licensing guidance, see [`docs/`](docs/).
 - `id` — stable identifier (`mt_…`), referenced by dependencies and by neighbours.
 - `standards` — keys into `curriculum-standards.json` (`"<curriculum-slug>:<code>"`).
 - `assessmentPrompt` — a natural-language check for the idea. Contains a `{{name}}` placeholder (the child's name); substitute or strip before display.
+
+For richer curriculum filtering, use [`data/curriculum-alignments.json`](data/curriculum-alignments.json). It keeps
+board, class, subject, match type, confidence, and mapping-source metadata outside the canonical topic records.
 
 ### A dependency
 

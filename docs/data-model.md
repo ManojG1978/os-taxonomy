@@ -97,6 +97,39 @@ Standard record fields:
 | `code` | Native standard code.                                               |
 | `data` | Optional full-text metadata object. Omitted for codes-only sources. |
 
+## `data/curriculum-alignments.json`
+
+Purpose: rich topic-to-standard alignment records for board, class, subject,
+and curriculum filtering.
+
+Top-level fields:
+
+- `version`: taxonomy version.
+- `alignmentCount`: declared count of alignment records.
+- `alignments`: array of alignment records.
+
+Alignment fields:
+
+| Field         | Meaning                                                                    |
+|---------------|----------------------------------------------------------------------------|
+| `topicId`     | Canonical Marble topic ID. Must resolve to `data/topics.json`.             |
+| `standardKey` | Curriculum standard key. Must resolve to `data/curriculum-standards.json`. |
+| `curriculum`  | Curriculum slug. Must match the prefix of `standardKey`.                   |
+| `country`     | Country or jurisdiction label such as `IN`.                                |
+| `board`       | Product-facing board label such as `CBSE`, `NCERT`, `ICSE`, or `ISC`.      |
+| `class`       | Optional class or grade number where applicable.                           |
+| `stage`       | Optional stage label.                                                      |
+| `subject`     | Curriculum-facing subject label.                                           |
+| `strand`      | Optional strand or domain label from the curriculum mapping.               |
+| `unit`        | Optional unit, chapter, or grouping label.                                 |
+| `matchType`   | One of `direct`, `partial`, `supporting`, or `extension`.                  |
+| `confidence`  | One of `machine`, `reviewed`, or `verified`.                               |
+| `source`      | One of `manual`, `machine`, or `imported`.                                 |
+| `notes`       | Optional mapping note.                                                     |
+
+This file is the richer board-filtering layer. `topics[].standards` remains a
+lightweight standard-key list for backward compatibility.
+
 ## `data/clusters.json`
 
 Purpose: reader-friendly summaries for grouped curriculum areas.

@@ -24,7 +24,8 @@
     "curricula": 7,
     "curriculumStandards": 3261,
     "topicStandardLinks": 1859,
-    "clusters": 183
+    "clusters": 183,
+    "curriculumAlignments": 0
   },
   "files": {
     "topics.json": {
@@ -42,6 +43,10 @@
     "clusters.json": {
       "bytes": 61019,
       "sha256": "d7dd0ca7fa1e6a5f3f54eb6482f47587e8508a199340e4ff58f2284cceda5ed0"
+    },
+    "curriculum-alignments.json": {
+      "bytes": 65,
+      "sha256": "2fb37c9e374ccf8518976763a6049674b3895ab7ffab5e2cb8e29c2eb561ffd7"
     }
   },
   "excluded": [

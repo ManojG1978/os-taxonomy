@@ -2,6 +2,11 @@
 
 The micro-topics, the prerequisite graph, and all of Marble's authored text are original work, released under ODbL 1.0 + CC BY-SA 4.0 (see [README](README.md#license)).
 
+`data/curriculum-alignments.json` contains Marble-authored mapping metadata
+between Marble topic IDs and external curriculum standard keys. It does not
+ship additional upstream curriculum text. Upstream licensing constraints still
+apply to the referenced records in `data/curriculum-standards.json`.
+
 **`data/curriculum-standards.json` is different.** Those standards are extracted from external curriculum frameworks that Marble does **not** own and **cannot** relicense. You can only receive from us the rights the upstream holders grant. Each source's terms — and exactly what we ship — are below.
 
 

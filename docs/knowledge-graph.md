@@ -71,6 +71,23 @@ The alignment is many-to-many:
 - Some curriculum records include full standard text.
 - Some curriculum records intentionally include only code/key identifiers.
 
+## Board And Class Filtering
+
+`data/curriculum-alignments.json` provides the rich mapping layer used to build
+board-specific views over the canonical graph. A board is not a separate graph;
+it is a filtered view over canonical topics and dependencies.
+
+Two graph modes are expected:
+
+- `strictBoardGraph`: include directly aligned topics and only dependencies
+  where both endpoints are inside that selected topic set.
+- `learningGraph`: include directly aligned topics plus prerequisite closure
+  from the canonical dependency graph.
+
+Use `strictBoardGraph` when a surface needs to show only what a board, class,
+or subject explicitly covers. Use `learningGraph` when a surface needs a
+pedagogically useful path that includes foundations the board may assume.
+
 ## Clusters
 
 Clusters in `data/clusters.json` are not graph edges. They are summarized

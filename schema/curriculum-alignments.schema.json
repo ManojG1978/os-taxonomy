@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://withmarble.com/taxonomy/schema/curriculum-alignments.schema.json",
+  "title": "Marble Skill Taxonomy — curriculum alignments",
+  "type": "object",
+  "required": [
+    "version",
+    "alignmentCount",
+    "alignments"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "alignmentCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "alignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "topicId",
+          "standardKey",
+          "curriculum",
+          "country",
+          "board",
+          "subject",
+          "matchType",
+          "confidence",
+          "source"
+        ],
+        "properties": {
+          "topicId": {
+            "type": "string",
+            "pattern": "^mt_"
+          },
+          "standardKey": {
+            "type": "string",
+            "pattern": "^[^:]+:.+"
+          },
+          "curriculum": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "board": {
+            "type": "string"
+          },
+          "class": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stage": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "strand": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "matchType": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "partial",
+              "supporting",
+              "extension"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "machine",
+              "reviewed",
+              "verified"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "machine",
+              "imported"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
