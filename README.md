@@ -111,6 +111,16 @@ Validate structure + referential integrity:
 node scripts/validate.mjs
 ```
 
+For the bounded EaseFactor integration reference, see
+[`docs/easefactor-reference-slice.md`](docs/easefactor-reference-slice.md). It
+includes a dependency-free local HTTP wrapper over the taxonomy graph and
+planner demo:
+
+```bash
+npm run test:easefactor-api
+npm run serve:easefactor-api
+```
+
 ## License
 
 This dataset is **multi-licensed** — read this before you use or redistribute it.

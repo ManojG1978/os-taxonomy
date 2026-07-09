@@ -8,6 +8,10 @@ artifacts.
 example** for wiring a small EaseFactor-style integration slice against this
 release data.
 
+`scripts/easefactor-api.mjs` is a thin **local HTTP wrapper** over that reference
+module. It uses Node built-ins only and is intended for developer inspection,
+integration spikes, and contract testing. It is not a production app backend.
+
 ## What It Is
 
 - A dependency-free runtime example that demonstrates how a product can use the
@@ -46,22 +50,87 @@ From the worktree root:
 
 - `npm run validate`
 - `npm run test:easefactor`
+- `npm run test:easefactor-api`
 - `node scripts/easefactor-reference.mjs --demo`
+- `npm run serve:easefactor-api`
 
 The demo run is intentionally synthetic and prints a deterministic recommendation
 trace for inspection.
+
+The local API listens on `http://127.0.0.1:3080` by default. Override the port
+with `PORT=3090 npm run serve:easefactor-api` or
+`node scripts/easefactor-api.mjs --port 3090`.
+
+## Local API
+
+Read-only taxonomy endpoints:
+
+```http
+GET /taxonomy/v1/releases/current
+GET /taxonomy/v1/topics
+GET /taxonomy/v1/topics/:topicId
+GET /taxonomy/v1/topics/:topicId/prerequisites?depth=2
+GET /taxonomy/v1/topics/:topicId/unlocks?depth=1
+GET /taxonomy/v1/curriculum-topics
+GET /taxonomy/v1/curricula
+GET /taxonomy/v1/standards
+GET /taxonomy/v1/curriculum-alignments
+GET /taxonomy/v1/clusters
+GET /taxonomy/v1/coverage
+```
+
+`/taxonomy/v1/topics` supports simple query filters: `subject`, `domain`,
+`type`, `standard`, `age`, `limit`, and `offset`.
+
+`/taxonomy/v1/curriculum-topics` accepts the same filter fields as
+`makeGraphStore().getCurriculumTopics()`, including `curriculum`, `board`,
+`class`, `subject`, `strand`, `mode`, and `prerequisiteDepth`.
+
+`/taxonomy/v1/curricula` returns curriculum source metadata without expanding
+all standards. It supports `curriculum`, `country`, and `codesOnly`.
+
+`/taxonomy/v1/standards` returns standards as flattened rows with curriculum
+metadata. It supports `curriculum`, `country`, `subject`, `domain`, `board`,
+`class`, `strand`, `key`, `code`, `codesOnly`, `limit`, and `offset`. For
+codes-only sources, subject, board, class, and strand filters are resolved from
+alignment metadata where available; the response still does not add upstream
+standard text.
+
+`/taxonomy/v1/curriculum-alignments` supports `topicId`, `standardKey`,
+`curriculum`, `country`, `board`, `class`, `subject`, `strand`, `matchType`,
+`confidence`, `limit`, and `offset`.
+
+`/taxonomy/v1/clusters` supports `subject`, `domain`, `age`, `limit`, and
+`offset`.
+
+`/taxonomy/v1/coverage` summarizes per-curriculum observability: standard
+counts, alignment counts, distinct aligned standards/topics, subjects, boards,
+classes, and strands.
+
+Planner demo endpoint:
+
+```http
+POST /planner/v1/next-best-topics
+```
+
+The planner endpoint accepts JSON with `goal`, `constraints`, optional
+synthetic `masteryEvents`, and optional `contentMappings`. It derives mastery
+state in memory for the request and returns the deterministic
+`recommendNextBestTopics` payload. No learner, customer, or content records are
+persisted to `data/`.
 
 ## Product Service Mapping
 
 Use this slice as the seam between the taxonomy dataset and EaseFactor services:
 
-| Product Area | Script Function |
-| --- | --- |
-| Taxonomy Importer | `loadTaxonomyRelease` |
-| Taxonomy Graph Store | `makeGraphStore` |
+| Product Area            | Script Function                                            |
+|-------------------------|------------------------------------------------------------|
+| Taxonomy Importer       | `loadTaxonomyRelease`                                      |
+| Taxonomy Graph Store    | `makeGraphStore`                                           |
 | Learner Mastery Service | `deriveMasteryState`, `checkReadiness`, `findLearningGaps` |
-| Content Mapping Service | `validateContentMappings` |
-| Planner Service | `recommendNextBestTopics` |
+| Content Mapping Service | `validateContentMappings`                                  |
+| Planner Service         | `recommendNextBestTopics`                                  |
+| Local HTTP Reference    | `createEaseFactorApiServer`                                |
 
 ## Licensing And Privacy Boundaries
 
