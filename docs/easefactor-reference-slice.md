@@ -145,15 +145,26 @@ path endpoint.
 Learner demo endpoints:
 
 ```http
+POST /learners/v1/mastery-summary
 POST /learners/v1/readiness/:topicId
 POST /learners/v1/learning-gaps/:topicId
 ```
 
 These endpoints accept JSON with optional synthetic `masteryEvents` and optional
-`learnerId`. They derive mastery state in memory for the single request, then
-return `checkReadiness` or `findLearningGaps` for the requested taxonomy topic.
-They do not create learner records, persist observations, authenticate callers,
-or add database/product backend behavior.
+`learnerId`. They derive mastery state in memory for the single request only.
+
+`/learners/v1/mastery-summary` exposes the raw `deriveMasteryState` result as a
+bounded API primitive. It returns the latest status, confidence, last evidence
+timestamp, explanation, and full evidence trail per topic. Optional `topicIds`
+filters the response and is sorted deterministically; requested topic IDs are
+validated against the taxonomy and unknown IDs return `unknown_topic_id`.
+Submitted evidence is not persisted.
+
+`/learners/v1/readiness/:topicId` and `/learners/v1/learning-gaps/:topicId`
+derive mastery state from the same synthetic request body, then return
+`checkReadiness` or `findLearningGaps` for the requested taxonomy topic. They do
+not create learner records, persist observations, authenticate callers, or add
+database/product backend behavior.
 
 Shared synthetic POST endpoint errors:
 
