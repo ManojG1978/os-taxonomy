@@ -119,6 +119,11 @@ The local API listens on `http://127.0.0.1:3080` by default. Override the port
 with `PORT=3090 npm run serve:easefactor-api` or
 `node scripts/easefactor-api.mjs --port 3090`.
 
+For an importable request collection, use the
+[Insomnia API export](easefactor-api.insomnia.json). It includes the taxonomy,
+learner, planner, and parent-companion requests and a `base_url` environment
+value defaulting to `http://127.0.0.1:3080`.
+
 ## Local API
 
 ### Parent companion demo endpoint

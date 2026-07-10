@@ -1,0 +1,287 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-10T00:00:00.000Z",
+  "__export_source": "marble-os-taxonomy.easefactor-api",
+  "resources": [
+    {
+      "_id": "wrk_easefactor_api",
+      "parentId": null,
+      "name": "Marble EaseFactor API",
+      "description": "Local, synthetic, no-persistence EaseFactor reference API.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_easefactor_base",
+      "parentId": "wrk_easefactor_api",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://127.0.0.1:3080",
+        "topic_id": "mt_IfEgu0X449",
+        "target_topic_id": "mt_IfEgu0X449",
+        "curriculum": "ncert-class6-math-2026-27"
+      },
+      "dataPropertyOrder": null,
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 0,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_taxonomy",
+      "parentId": "wrk_easefactor_api",
+      "name": "Taxonomy",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 0,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_learner",
+      "parentId": "wrk_easefactor_api",
+      "name": "Learner",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_planner",
+      "parentId": "wrk_easefactor_api",
+      "name": "Planner",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_companion",
+      "parentId": "wrk_easefactor_api",
+      "name": "Parent Companion",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_release",
+      "parentId": "fld_taxonomy",
+      "name": "Current release",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/releases/current",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_topics",
+      "parentId": "fld_taxonomy",
+      "name": "List topics",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/topics?subject=Mathematics&age=11&limit=25",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_topic",
+      "parentId": "fld_taxonomy",
+      "name": "Get topic",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/topics/{{ _.topic_id }}",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_prerequisites",
+      "parentId": "fld_taxonomy",
+      "name": "Get prerequisites",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/topics/{{ _.topic_id }}/prerequisites?depth=2",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_unlocks",
+      "parentId": "fld_taxonomy",
+      "name": "Get unlocks",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/topics/{{ _.topic_id }}/unlocks?depth=1",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_curriculum_topics",
+      "parentId": "fld_taxonomy",
+      "name": "Curriculum topics",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/curriculum-topics?curriculum={{ _.curriculum }}&board=CBSE&class=6&subject=Mathematics",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_curricula",
+      "parentId": "fld_taxonomy",
+      "name": "List curricula",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/curricula?codesOnly=true",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_standards",
+      "parentId": "fld_taxonomy",
+      "name": "List standards",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/standards?curriculum={{ _.curriculum }}&limit=25&offset=0",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_alignments",
+      "parentId": "fld_taxonomy",
+      "name": "List curriculum alignments",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/curriculum-alignments?curriculum={{ _.curriculum }}&limit=25",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_clusters",
+      "parentId": "fld_taxonomy",
+      "name": "List clusters",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/clusters?subject=Mathematics&limit=25",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_coverage",
+      "parentId": "fld_taxonomy",
+      "name": "Curriculum coverage",
+      "method": "GET",
+      "url": "{{ _.base_url }}/taxonomy/v1/coverage?curriculum={{ _.curriculum }}",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "_type": "request"
+    },
+    {
+      "_id": "req_mastery_summary",
+      "parentId": "fld_learner",
+      "name": "Mastery summary",
+      "method": "POST",
+      "url": "{{ _.base_url }}/learners/v1/mastery-summary",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"topicIds\": [\"mt_IfEgu0X449\", \"mt_Kr3IyA6m-O\"],\n  \"masteryEvents\": [\n    {\"learnerId\": \"synthetic-learner\", \"topicId\": \"mt_Kr3IyA6m-O\", \"result\": \"partial\", \"score\": 0.42, \"observedAt\": \"2026-07-10T09:05:00.000Z\"},\n    {\"learnerId\": \"synthetic-learner\", \"topicId\": \"mt_IfEgu0X449\", \"result\": \"secure\", \"score\": 0.92, \"observedAt\": \"2026-07-10T09:00:00.000Z\"}\n  ]\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_readiness",
+      "parentId": "fld_learner",
+      "name": "Readiness",
+      "method": "POST",
+      "url": "{{ _.base_url }}/learners/v1/readiness/{{ _.topic_id }}",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"masteryEvents\": [\n    {\"topicId\": \"mt_Kr3IyA6m-O\", \"result\": \"partial\", \"score\": 0.42, \"observedAt\": \"2026-07-10T09:05:00.000Z\"}\n  ]\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_gaps",
+      "parentId": "fld_learner",
+      "name": "Learning gaps",
+      "method": "POST",
+      "url": "{{ _.base_url }}/learners/v1/learning-gaps/{{ _.topic_id }}",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"masteryEvents\": []\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_next_best",
+      "parentId": "fld_planner",
+      "name": "Next best topics",
+      "method": "POST",
+      "url": "{{ _.base_url }}/planner/v1/next-best-topics",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"goal\": {\n    \"curriculum\": \"ncert-class6-math-2026-27\",\n    \"board\": \"CBSE\",\n    \"class\": 6,\n    \"subject\": \"Mathematics\",\n    \"strand\": \"Number System\"\n  },\n  \"constraints\": {\"includeReview\": true, \"maxNewTopics\": 3},\n  \"masteryEvents\": [],\n  \"contentMappings\": []\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_diagnostic",
+      "parentId": "fld_planner",
+      "name": "Diagnostic plan",
+      "method": "POST",
+      "url": "{{ _.base_url }}/planner/v1/diagnostic-plan",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"targetTopicId\": \"{{ _.target_topic_id }}\",\n  \"masteryEvents\": [],\n  \"contentMappings\": []\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_remediation",
+      "parentId": "fld_planner",
+      "name": "Remediation plan",
+      "method": "POST",
+      "url": "{{ _.base_url }}/planner/v1/remediation-plan",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"learnerId\": \"synthetic-learner\",\n  \"targetTopicId\": \"{{ _.target_topic_id }}\",\n  \"masteryEvents\": [],\n  \"contentMappings\": []\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_parent_journey",
+      "parentId": "fld_companion",
+      "name": "Parent companion journey",
+      "method": "POST",
+      "url": "{{ _.base_url }}/companion/v1/parent-journey",
+      "headers": [{"name": "Content-Type", "value": "application/json"}],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"context\": {\n    \"board\": \"CBSE\",\n    \"curriculum\": \"ncert-class6-math-2026-27\",\n    \"class\": 6,\n    \"subject\": \"Mathematics\",\n    \"language\": \"en-IN\",\n    \"topicFamily\": \"fractions-comparison\"\n  },\n  \"concernId\": \"fraction-size-comparison\",\n  \"evidenceMode\": \"synthetic\",\n  \"consent\": {\n    \"purpose\": \"diagnostic-guidance\",\n    \"scope\": \"request-only\",\n    \"observationCapture\": \"request-only\"\n  },\n  \"diagnosticEvents\": [\n    {\"topicId\": \"mt_vKcxX6iNOA\", \"result\": \"secure\", \"score\": 0.92, \"observedAt\": \"2026-07-10T09:00:00.000Z\"},\n    {\"topicId\": \"mt_Kr3IyA6m-O\", \"result\": \"partial\", \"score\": 0.42, \"observedAt\": \"2026-07-10T09:05:00.000Z\"}\n  ],\n  \"recheckEvents\": [\n    {\"topicId\": \"mt_Kr3IyA6m-O\", \"result\": \"secure\", \"score\": 0.86, \"observedAt\": \"2026-07-10T09:30:00.000Z\"}\n  ],\n  \"parentOutcomeResponses\": {\n    \"foundationalGapTopicId\": \"mt_Kr3IyA6m-O\",\n    \"firstActionId\": \"locate-benchmark-fractions\"\n  }\n}"
+      },
+      "_type": "request"
+    }
+  ]
+}
