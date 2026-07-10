@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "alignmentCount": 86,
+  "alignmentCount": 94,
   "alignments": [
     {
       "topicId": "mt_JwP9QFv6gQ",
@@ -1117,6 +1117,110 @@
       "subject": "Mathematics",
       "strand": "Symmetry",
       "matchType": "extension",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_4MFUAsbx_6",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.001",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "direct",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_Jf8xcX4UTq",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.001",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "supporting",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_Jf8xcX4UTq",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.002",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "direct",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_4MFUAsbx_6",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.002",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "supporting",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_hdrMoiTgqu",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.003",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "direct",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_4MFUAsbx_6",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.003",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "supporting",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_ZrsqGVG-Wt",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.004",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "direct",
+      "confidence": "reviewed",
+      "source": "manual"
+    },
+    {
+      "topicId": "mt_Jf8xcX4UTq",
+      "standardKey": "ncert-class6-math-2026-27:M6.CON.004",
+      "curriculum": "ncert-class6-math-2026-27",
+      "country": "IN",
+      "board": "CBSE",
+      "class": 6,
+      "subject": "Mathematics",
+      "strand": "Constructions",
+      "matchType": "supporting",
       "confidence": "reviewed",
       "source": "manual"
     }

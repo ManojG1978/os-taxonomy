@@ -23,10 +23,10 @@
     },
     "dependencies": 3221,
     "curricula": 8,
-    "curriculumStandards": 3307,
+    "curriculumStandards": 3311,
     "topicStandardLinks": 1859,
     "clusters": 183,
-    "curriculumAlignments": 86
+    "curriculumAlignments": 94
   },
   "files": {
     "topics.json": {
@@ -38,16 +38,16 @@
       "sha256": "86a24efb44b480e5be23082b4bdea653f69f6d6fd54c5409a2f33c185be1d87f"
     },
     "curriculum-standards.json": {
-      "bytes": 1627400,
-      "sha256": "a5d7f6c59673f62b6aa452755b1b5c80783aa3e4394d58aaebf7e53dfdc70344"
+      "bytes": 1627836,
+      "sha256": "58ca15a03d2531b686ea0d966340cc9e0f450125eb7778652a970cd16a5270d8"
     },
     "clusters.json": {
       "bytes": 61019,
       "sha256": "d7dd0ca7fa1e6a5f3f54eb6482f47587e8508a199340e4ff58f2284cceda5ed0"
     },
     "curriculum-alignments.json": {
-      "bytes": 32252,
-      "sha256": "f747df418301ff5667a93aad6c3dbd5f4cc8c994fbee14fd8367c2657c69dc5a"
+      "bytes": 35244,
+      "sha256": "5f32b9e167b06df46e987e2613aa10a1a6c137d8e2bb490dfa75748f288be014"
     }
   },
   "excluded": [
