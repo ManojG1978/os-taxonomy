@@ -123,11 +123,11 @@ A compact successful request is:
     "observationCapture": "request-only"
   },
   "diagnosticEvents": [
-    {"topicId": "mt_vKcxX6iNOA", "result": "secure", "score": 0.92},
-    {"topicId": "mt_Kr3IyA6m-O", "result": "partial", "score": 0.42}
+    {"topicId": "mt_vKcxX6iNOA", "result": "secure", "score": 0.92, "observedAt": "2026-07-10T09:00:00.000Z"},
+    {"topicId": "mt_Kr3IyA6m-O", "result": "partial", "score": 0.42, "observedAt": "2026-07-10T09:05:00.000Z"}
   ],
   "recheckEvents": [
-    {"topicId": "mt_Kr3IyA6m-O", "result": "secure", "score": 0.86}
+    {"topicId": "mt_Kr3IyA6m-O", "result": "secure", "score": 0.86, "observedAt": "2026-07-10T09:30:00.000Z"}
   ],
   "parentOutcomeResponses": {
     "foundationalGapTopicId": "mt_Kr3IyA6m-O",
@@ -142,6 +142,11 @@ Parent outcome status is `passed`, `not-passed`, or `not-measured`; `passed`
 requires both the foundational-gap and first-action answers to match the
 journey result.
 
+Each submitted evidence event must use one of the three reviewed journey topic
+IDs, a `result` of `secure`, `partial`, `review`, or `blocked`, a finite `score`
+from `0` through `1`, and a valid `observedAt` timestamp. `taxonomyVersion` is
+optional; when present, it must equal the current taxonomy version.
+
 Typed errors are:
 
 | HTTP status | Error code | Meaning |
@@ -151,8 +156,7 @@ Typed errors are:
 | 400 | `invalid_consent_boundary` | The consent assertion is missing or differs from the request-only contract. |
 | 400 | `synthetic_evidence_required` | `evidenceMode` is not `synthetic`. |
 | 400 | `private_data_not_allowed` | The request contains an unsupported, private, or persistence field. |
-| 400 | `invalid_parent_journey_evidence` | Evidence is malformed or outside the three reviewed journey topics. |
-| 404 | `unknown_topic_id` | Evidence references a topic absent from the taxonomy. |
+| 400 | `invalid_parent_journey_evidence` | Evidence is malformed, version-mismatched, or outside the three reviewed journey topics. |
 | 413 | `request_body_too_large` | The request exceeds the shared one-megabyte body limit. |
 | 500 | `invalid_reviewed_activity` | The built-in activity fails its reviewed mapping contract. |
 

@@ -175,7 +175,7 @@ The API returns typed, explainable errors:
 | Missing or invalid consent assertion | 400 | `invalid_consent_boundary` |
 | Evidence mode is not synthetic | 400 | `synthetic_evidence_required` |
 | Prohibited identifier or persistence field is supplied | 400 | `private_data_not_allowed` |
-| Evidence references an unknown topic | 404 | `unknown_topic_id` |
+| Evidence is malformed, version-mismatched, or outside the three reviewed topics | 400 | `invalid_parent_journey_evidence` |
 | Activity mapping is not reviewed or references unknown topics | 500 | `invalid_reviewed_activity` |
 | Request body exceeds the existing limit | 413 | `request_body_too_large` |
 

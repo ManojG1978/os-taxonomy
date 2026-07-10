@@ -746,21 +746,43 @@ export const buildDiagnosticPlan = (graph, request = {}) => {
 const parentJourneyError = (code, message = code) => Object.assign(new Error(message), {code});
 
 export const validateReviewedHouseholdActivity = (graph, activity) => {
-  if (!activity || activity.review?.status !== 'reviewed' || !Array.isArray(activity.topicIds) || activity.topicIds.length === 0) {
-    throw parentJourneyError('invalid_reviewed_activity', 'Household activity must be reviewed and map to at least one topic.');
-  }
   try {
+    const nonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
+    const nonEmptyStringArray = (value) => Array.isArray(value) && value.length > 0 && value.every(nonEmptyString);
+    if (!activity || typeof activity !== 'object' || Array.isArray(activity)) throw new Error('Household activity must be an object.');
+    if (!nonEmptyString(activity.activityId) || !Number.isInteger(activity.version) || activity.version <= 0) throw new Error('Household activity identity and version are required.');
+    if (activity.review?.status !== 'reviewed' || !nonEmptyString(activity.review?.scope)) throw new Error('Household activity review metadata is invalid.');
+    if (!nonEmptyString(activity.title) || !nonEmptyString(activity.purpose)) throw new Error('Household activity title and purpose are required.');
+    for (const field of ['materials', 'instructions', 'evidencePrompts', 'accessibilityNotes', 'safetyNotes']) {
+      if (!nonEmptyStringArray(activity[field])) throw new Error(`Household activity ${field} must contain reviewed text.`);
+    }
+    if (typeof activity.estimatedMinutes !== 'number' || !Number.isFinite(activity.estimatedMinutes) || activity.estimatedMinutes <= 0) throw new Error('Household activity estimatedMinutes must be positive and finite.');
+
+    const requiredTopicIds = new Set(['mt_Kr3IyA6m-O', 'mt_IfEgu0X449']);
+    const activityTopicIds = new Set(activity.topicIds);
+    if (!Array.isArray(activity.topicIds) || activity.topicIds.length !== requiredTopicIds.size || activityTopicIds.size !== requiredTopicIds.size || activity.topicIds.some((topicId) => !requiredTopicIds.has(topicId))) throw new Error('Household activity must use the reviewed topic set.');
     for (const topicId of activity.topicIds) graph.getTopic(topicId);
-    validateContentMappings(graph, activity.contentMappings);
+    const mappings = validateContentMappings(graph, activity.contentMappings);
+    if (mappings.length === 0) throw new Error('Household activity content mappings are required.');
+    const mappedTopicIds = new Set();
+    for (const mapping of mappings) {
+      if (mapping.contentId !== activity.activityId) throw new Error('Household activity mapping contentId must match activityId.');
+      if (mapping.confidence !== 'reviewed' && mapping.confidence !== 'verified') throw new Error('Household activity mappings must be human reviewed.');
+      mappedTopicIds.add(mapping.topicId);
+    }
+    if (mappedTopicIds.size !== requiredTopicIds.size || activity.topicIds.some((topicId) => !mappedTopicIds.has(topicId))) throw new Error('Household activity mapping topics must match activity topics.');
   } catch (error) {
-    throw parentJourneyError('invalid_reviewed_activity', error.message);
+    throw parentJourneyError('invalid_reviewed_activity', error?.message ?? 'Invalid reviewed household activity.');
   }
   return activity;
 };
 
-const buildParentOutcome = (responses) => {
-  const expected = {foundationalGapTopicId: parentConcern.foundationalTopicId, firstActionId: parentRemediationSteps[0].actionId};
-  if (!responses) return {status: 'not-measured', understoodGap: null, identifiedFirstAction: null, expected};
+const buildParentOutcome = (responses, foundationalGap, remediationSteps) => {
+  const expected = {
+    foundationalGapTopicId: foundationalGap?.status === 'identified' ? foundationalGap.topicId : null,
+    firstActionId: remediationSteps?.[0]?.actionId ?? null,
+  };
+  if (!responses || !expected.foundationalGapTopicId || !expected.firstActionId) return {status: 'not-measured', understoodGap: null, identifiedFirstAction: null, expected};
   const understoodGap = responses.foundationalGapTopicId === expected.foundationalGapTopicId;
   const identifiedFirstAction = responses.firstActionId === expected.firstActionId;
   return {status: understoodGap && identifiedFirstAction ? 'passed' : 'not-passed', understoodGap, identifiedFirstAction, expected};
@@ -782,12 +804,22 @@ const validateEvidenceTopics = (graph, events) => {
   for (const event of events) {
     if (!event || typeof event !== 'object' || typeof event.topicId !== 'string') throw parentJourneyError('invalid_parent_journey_evidence', 'Each evidence event requires a topicId.');
     assertOnlyFields(event, allowedEvidenceFields);
-    graph.getTopic(event.topicId);
     if (!allowedParentJourneyEvidenceTopics.has(event.topicId)) throw parentJourneyError('invalid_parent_journey_evidence', `Evidence topic is outside the reviewed parent journey: ${event.topicId}.`);
+    if (!['secure', 'partial', 'review', 'blocked'].includes(event.result)) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence result is invalid.');
+    if (typeof event.score !== 'number' || !Number.isFinite(event.score) || event.score < 0 || event.score > 1) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence score must be finite and between zero and one.');
+    if (typeof event.observedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(event.observedAt) || !Number.isFinite(Date.parse(event.observedAt))) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence observedAt must be a valid timestamp.');
+    if (event.taxonomyVersion !== undefined && event.taxonomyVersion !== graph.taxonomyVersion) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence taxonomyVersion does not match the current taxonomy.');
+    try {
+      graph.getTopic(event.topicId);
+    } catch (error) {
+      throw parentJourneyError('invalid_parent_journey_evidence', error?.message ?? 'Evidence topic is invalid.');
+    }
   }
 };
 const validateParentJourneyBoundary = (graph, request) => {
   assertOnlyFields(request, allowedParentJourneyFields);
+  if (!request.context || typeof request.context !== 'object' || Array.isArray(request.context)) throw parentJourneyError('unsupported_parent_journey_context', 'Parent journey context is required.');
+  if (!request.consent || typeof request.consent !== 'object' || Array.isArray(request.consent)) throw parentJourneyError('invalid_consent_boundary', 'Consent must be request-only diagnostic guidance.');
   assertOnlyFields(request.context, allowedContextFields);
   assertOnlyFields(request.consent, allowedConsentFields);
   if (request.parentOutcomeResponses !== undefined) assertOnlyFields(request.parentOutcomeResponses, allowedOutcomeFields);
@@ -797,8 +829,8 @@ const validateParentJourneyBoundary = (graph, request) => {
   if (request.concernId !== parentConcern.concernId) throw parentJourneyError('unsupported_parent_journey_context', 'Unsupported parent concern.');
   if (request.evidenceMode !== 'synthetic') throw parentJourneyError('synthetic_evidence_required', 'Only synthetic evidence is accepted.');
   if (request.consent?.purpose !== 'diagnostic-guidance' || request.consent?.scope !== 'request-only' || request.consent?.observationCapture !== 'request-only') throw parentJourneyError('invalid_consent_boundary', 'Consent must be request-only diagnostic guidance.');
-  validateEvidenceTopics(graph, request.diagnosticEvents ?? []);
-  validateEvidenceTopics(graph, request.recheckEvents ?? []);
+  validateEvidenceTopics(graph, request.diagnosticEvents === undefined ? [] : request.diagnosticEvents);
+  validateEvidenceTopics(graph, request.recheckEvents === undefined ? [] : request.recheckEvents);
 };
 
 export const buildParentCompanionJourney = (graph, request = {}) => {
@@ -812,18 +844,20 @@ export const buildParentCompanionJourney = (graph, request = {}) => {
   const learningGaps = findLearningGaps(graph, diagnosticMastery, parentConcern.targetTopicId);
   const remediationPlan = buildRemediationPlan(graph, {targetTopicId: parentConcern.targetTopicId, masteryByTopic: diagnosticMastery, contentMappings: activity.contentMappings});
   const recheckState = recheckMastery.get(parentConcern.foundationalTopicId) ?? null;
+  const foundationalGap = gapIdentified ? {status: 'identified', topicId: parentConcern.foundationalTopicId, evidenceStatus: foundationalState.status, confidence: foundationalState.confidence, graphGaps: learningGaps.gaps} : {status: 'not-enough-information', topicId: null, evidenceStatus: foundationalState?.status ?? 'unseen', confidence: foundationalState?.confidence ?? 0, nextPromptId: 'place-fraction-number-line'};
+  const remediationSteps = gapIdentified ? parentRemediationSteps.map((row) => ({...row})) : [];
   return {
     taxonomyVersion: graph.taxonomyVersion,
     journeyVersion: 'parent-fractions-v1',
     intake: {context: {...parentJourneyContext}, concernId: parentConcern.concernId, concern: parentConcern.text},
     diagnostic: {prompts: parentDiagnosticPrompts.map((row) => ({...row})), evidenceCount: request.diagnosticEvents?.length ?? 0, plan: diagnosticPlan},
-    foundationalGap: gapIdentified ? {status: 'identified', topicId: parentConcern.foundationalTopicId, evidenceStatus: foundationalState.status, confidence: foundationalState.confidence, graphGaps: learningGaps.gaps} : {status: 'not-enough-information', topicId: null, evidenceStatus: foundationalState?.status ?? 'unseen', confidence: foundationalState?.confidence ?? 0, nextPromptId: 'place-fraction-number-line'},
+    foundationalGap,
     explanation: gapIdentified ? 'Comparing fractions is difficult because the submitted evidence shows that placing fractions by size on a number line is not yet consistent.' : 'There is not enough information to identify a foundational gap. Try the number-line diagnostic prompt first.',
-    remediationSteps: gapIdentified ? parentRemediationSteps.map((row) => ({...row})) : [],
+    remediationSteps,
     remediationDecision: remediationPlan,
     activity: gapIdentified ? structuredClone(activity) : null,
     recheck: recheckState ? {status: isSecureEnough(recheckState) && gapIdentified ? 'improved' : 'needs-more-evidence', topicId: parentConcern.foundationalTopicId, evidenceStatus: recheckState.status, confidence: recheckState.confidence, prompt: 'Place 2/5 and 4/5 on the same number line, then explain which is larger.'} : {status: 'not-submitted', topicId: parentConcern.foundationalTopicId, evidenceStatus: 'unseen', confidence: 0, prompt: 'Place 2/5 and 4/5 on the same number line, then explain which is larger.'},
-    parentOutcome: buildParentOutcome(request.parentOutcomeResponses),
+    parentOutcome: buildParentOutcome(request.parentOutcomeResponses, foundationalGap, remediationSteps),
     privacy: {evidenceMode: request.evidenceMode, scope: request.consent?.scope, persistence: 'none'},
   };
 };

@@ -582,6 +582,9 @@ test('parent journey returns not enough information without number-line evidence
   assert.equal(journey.activity, null);
   assert.deepEqual(journey.remediationSteps, []);
   assert.equal(journey.recheck.status, 'not-submitted');
+  assert.equal(journey.parentOutcome.status, 'not-measured');
+  assert.equal(journey.parentOutcome.understoodGap, null);
+  assert.equal(journey.parentOutcome.identifiedFirstAction, null);
 });
 
 test('parent journey is deterministic and keeps diagnostic and recheck evidence separate', () => {
@@ -595,9 +598,25 @@ test('parent journey is deterministic and keeps diagnostic and recheck evidence 
 
 test('reviewed household activity normalizes draft, unknown-topic, and invalid-mapping failures', () => {
   const graph = makeGraphStore(loadTaxonomyRelease());
-  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'draft'}, topicIds: ['mt_Kr3IyA6m-O'], contentMappings: []}), (error) => error.code === 'invalid_reviewed_activity');
-  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'reviewed'}, topicIds: ['mt_missing'], contentMappings: []}), (error) => error.code === 'invalid_reviewed_activity');
-  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'reviewed'}, topicIds: ['mt_Kr3IyA6m-O'], contentMappings: [{contentId: 'bad', topicId: 'mt_Kr3IyA6m-O', taxonomyVersion: 'v1', role: 'unknown', confidence: 'reviewed'}]}), (error) => error.code === 'invalid_reviewed_activity');
+  const valid = buildParentCompanionJourney(graph, makeParentJourneyRequest()).activity;
+  const expectInvalid = (activity) => assert.throws(
+    () => validateReviewedHouseholdActivity(graph, activity),
+    (error) => error.code === 'invalid_reviewed_activity',
+  );
+
+  expectInvalid({...valid, title: ''});
+  expectInvalid({...valid, version: 0});
+  expectInvalid({...valid, review: {status: 'reviewed', scope: ''}});
+  expectInvalid({...valid, materials: []});
+  expectInvalid({...valid, estimatedMinutes: Number.POSITIVE_INFINITY});
+  expectInvalid({...valid, topicIds: ['mt_Kr3IyA6m-O']});
+  expectInvalid({...valid, topicIds: ['mt_Kr3IyA6m-O', 'mt_Kr3IyA6m-O']});
+  expectInvalid({...valid, topicIds: ['mt_Kr3IyA6m-O', 'mt_missing']});
+  expectInvalid({...valid, contentMappings: []});
+  expectInvalid({...valid, contentMappings: valid.contentMappings.slice(0, 1)});
+  expectInvalid({...valid, contentMappings: valid.contentMappings.map((mapping) => ({...mapping, contentId: 'wrong-activity'}))});
+  expectInvalid({...valid, contentMappings: valid.contentMappings.map((mapping) => ({...mapping, confidence: 'machine'}))});
+  expectInvalid({...valid, contentMappings: valid.contentMappings.map((mapping) => ({...mapping, role: 'unknown'}))});
 });
 
 test('parent outcome requires both comprehension and action answers', () => {
@@ -620,6 +639,53 @@ test('parent journey requires fixed context, synthetic mode, request-only consen
     assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({[field]: 'not-allowed'})), (error) => error.code === 'private_data_not_allowed');
   }
   assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({diagnosticEvents: [{topicId: 'mt_cFltwUQi-d', result: 'partial'}]})), (error) => error.code === 'invalid_parent_journey_evidence');
+});
+
+test('parent journey types missing and invalid context and consent before field allowlisting', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  for (const context of [undefined, null, 'CBSE']) {
+    assert.throws(
+      () => buildParentCompanionJourney(graph, makeParentJourneyRequest({context})),
+      (error) => error.code === 'unsupported_parent_journey_context',
+    );
+  }
+  for (const consent of [undefined, null, 'request-only']) {
+    assert.throws(
+      () => buildParentCompanionJourney(graph, makeParentJourneyRequest({consent})),
+      (error) => error.code === 'invalid_consent_boundary',
+    );
+  }
+  assert.throws(
+    () => buildParentCompanionJourney(graph, makeParentJourneyRequest({context: {...makeParentJourneyRequest().context, childName: 'private'}})),
+    (error) => error.code === 'private_data_not_allowed',
+  );
+  assert.throws(
+    () => buildParentCompanionJourney(graph, makeParentJourneyRequest({consent: {...makeParentJourneyRequest().consent, retain: true}})),
+    (error) => error.code === 'private_data_not_allowed',
+  );
+});
+
+test('parent journey rejects malformed evidence with one normalized error', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  const baseEvent = makeParentJourneyRequest().diagnosticEvents[0];
+  const invalidEvents = [
+    {...baseEvent, result: undefined},
+    {...baseEvent, result: 'mastered'},
+    {...baseEvent, score: undefined},
+    {...baseEvent, score: Number.NaN},
+    {...baseEvent, score: -0.01},
+    {...baseEvent, score: 1.01},
+    {...baseEvent, observedAt: undefined},
+    {...baseEvent, observedAt: 'not-a-timestamp'},
+    {...baseEvent, taxonomyVersion: 'v2'},
+    {...baseEvent, topicId: 'mt_missing'},
+  ];
+  for (const event of invalidEvents) {
+    assert.throws(
+      () => buildParentCompanionJourney(graph, makeParentJourneyRequest({diagnosticEvents: [event]})),
+      (error) => error.code === 'invalid_parent_journey_evidence',
+    );
+  }
 });
 
 test('CLI --demo emits a valid recommendation payload', () => {
