@@ -306,8 +306,8 @@ map to a local course while keeping prerequisite support available across
 those views.
 
 The CBSE-facing alignment to NCERT Class 6 Mathematics in this release is an
-explicitly partial, codes-only example. It demonstrates selected mappings and
-must not be presented as complete CBSE or NCERT coverage. Because it is
+explicitly partial, reviewed, codes-only pilot. It demonstrates selected
+mappings and must not be presented as complete CBSE or NCERT coverage. Because it is
 codes-only, readers must consult authorized NCERT or other upstream material
 for the full curriculum text; the public taxonomy must not reconstruct that
 text from identifiers or memory.
