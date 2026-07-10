@@ -17,7 +17,9 @@ It is not a production app backend.
 > **Document role:** This file documents behavior that is runnable in this
 > repository with synthetic request data. It is not the product backlog. See
 > the [EaseFactor product roadmap](easefactor-product-roadmap.md) for current
-> status, ownership, and next steps.
+> status, ownership, and next steps. See the [EaseFactor solution
+> architecture](easefactor-solution-architecture.md) for the module-level
+> implementation and dependency map.
 
 ## What It Is
 
