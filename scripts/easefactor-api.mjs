@@ -2,17 +2,17 @@ import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 
 import {
-    buildDiagnosticPlan,
     buildParentCompanionJourney,
-    buildRemediationPlan,
     checkReadiness,
     deriveMasteryState,
     findLearningGaps,
     loadTaxonomyRelease,
     makeGraphStore,
-    recommendNextBestTopics,
 } from './easefactor-reference.mjs';
 import {buildMasterySummary} from './easefactor/learner/mastery-summary.mjs';
+import {buildDiagnosticPlan} from './easefactor/planner/diagnostic-plan.mjs';
+import {recommendNextBestTopics} from './easefactor/planner/next-best-topics.mjs';
+import {buildRemediationPlan} from './easefactor/planner/remediation-plan.mjs';
 
 const jsonHeaders = {
     'content-type': 'application/json; charset=utf-8',
