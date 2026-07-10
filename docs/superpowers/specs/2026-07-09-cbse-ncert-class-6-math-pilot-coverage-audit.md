@@ -49,18 +49,17 @@ source-level coverage matrix lives in `docs/curriculum-coverage.md`.
   place-value-pattern, and mathematical-argument scaffolding.
 - One extension row intentionally reaches into a later factor/multiple topic for
   HCF, LCM, and prime-factorization continuity.
-- Later reviewed slices added Fractions, Geometry/Measurement, and Data
-  Handling/Patterns coverage while keeping the source codes-only.
+- Later reviewed slices added Fractions, Geometry/Measurement, Data
+  Handling/Patterns, and Integers coverage while keeping the source codes-only.
 
 ## Planned Gaps
 
 - Constructions remain unmapped.
 - Symmetry remains unmapped.
-- Integers and negative-number contexts remain unmapped.
 - Broader patterning and algebraic generalisation cleanup remains open.
 
 ## Recommendation
 
-Use integers and negative-number contexts as the next bounded slice with local
-source-key prefix `M6.INT`. Keep the slice to 4-6 source keys and 8-12
-alignment rows.
+Use Symmetry or Constructions as the next bounded slice, but only after checking
+whether the current Marble graph has enough existing clean topic IDs for
+reviewed mappings.

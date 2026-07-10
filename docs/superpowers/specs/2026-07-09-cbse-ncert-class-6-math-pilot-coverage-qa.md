@@ -9,10 +9,10 @@ graph, and select the next bounded codes-only Class 6 Math slice to map.
 ## Scope
 
 Status note: this planning document was superseded by later reviewed data
-slices. The current `ncert-class6-math-2026-27` state is 34 source keys and 66
-alignment rows across Number System, Fractions, Geometry/Measurement, and Data
-Handling/Patterns. Keep this document as a historical planning artifact, not as
-the current release inventory.
+slices. The current `ncert-class6-math-2026-27` state is 40 source keys and 76
+alignment rows across Number System, Fractions, Geometry/Measurement, Data
+Handling/Patterns, and Integers. Keep this document as a historical planning
+artifact, not as the current release inventory.
 
 The tranche produces:
 
@@ -24,14 +24,15 @@ The tranche produces:
 ## Current Pilot Shape
 
 The current pilot source is `ncert-class6-math-2026-27`. It is codes-only and
-contains 34 source keys:
+contains 40 source keys:
 
 - `M6.NS.001` through `M6.NS.010`
 - `M6.FR.001` through `M6.FR.008`
 - `M6.GM.001` through `M6.GM.008`
 - `M6.DH.001` through `M6.DH.008`
+- `M6.INT.001` through `M6.INT.006`
 
-The current alignment layer contains 66 rows for this source, all with:
+The current alignment layer contains 76 rows for this source, all with:
 
 - `country: "IN"`
 - `board: "CBSE"`
@@ -54,6 +55,7 @@ The rows currently cover:
   and tenths/hundredths decimal links
 - geometry and measurement foundations
 - data handling and patterning foundations
+- integer and negative-number context foundations
 
 ## QA Questions
 
@@ -78,7 +80,6 @@ book. Based on the present Marble topic graph, obvious unmapped areas include:
 - perimeter and area measurement
 - construction work
 - symmetry
-- integers and negative-number contexts
 - broader patterning and algebraic generalisation cleanup
 
 These are not defects in the first pilot. They should be documented as planned
@@ -87,16 +88,14 @@ coverage.
 
 ## Recommended Next Slice
 
-Choose integers and negative-number contexts as the next small slice, with the
-local slice code prefix `M6.INT`.
+Choose Symmetry or Constructions as the next small slice, after checking whether
+the current Marble graph has enough existing clean topic IDs for reviewed
+mappings.
 
 Rationale:
 
 - Geometry/Measurement, Fractions, and Data Handling/Patterns are already
   represented in the current release.
-- Integers continues the Number System coverage but exercises a distinct
-  negative-number context.
-- It can stay compact: about 4-6 new source keys and 8-12 alignment rows.
 - It can stay compact: about 6-10 new source keys and 12-25 alignment rows.
 
 Candidate Marble topic IDs to review:
@@ -118,8 +117,7 @@ Candidate Marble topic IDs to review:
 
 ## Alternative Slice
 
-If the QA audit shows the Number System pilot needs more immediate continuity,
-choose an integers extension instead with local code prefix `M6.INT`.
+The integers extension has now landed with local code prefix `M6.INT`.
 
 Candidate Marble topic IDs to review:
 
@@ -133,9 +131,9 @@ Candidate Marble topic IDs to review:
 | `mt_uDJY0X0hgo`    | Number Representation & Place Value | Fractions on a number line (age 11+) | Ordering mixed positive and negative values    |
 | `mt_RWUY7_IXvw`    | Number Representation & Place Value | Numbers on a number line             | Absolute value as distance from zero           |
 
-Fractions was selected before integers for the current data tranche because it
-had the broadest unmapped Class 6 gap and a clean set of existing Marble topic
-IDs. After that slice, integers is the preferred next expansion.
+Fractions was selected before integers because it had broad unmapped Class 6
+coverage and a clean set of existing Marble topic IDs. The later integers slice
+landed after that expansion.
 
 ## Source Posture
 

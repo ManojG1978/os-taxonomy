@@ -43,6 +43,6 @@ Source keys:
 
 ## Next Gap
 
-The next bounded curriculum-side move should be an `M6.INT` Integers slice,
-followed by small Symmetry or Constructions slices if the current Marble topic
+The next bounded curriculum-side move should be a small Symmetry or
+Constructions slice, but only after checking whether the current Marble topic
 graph has enough existing IDs for clean reviewed mappings.

@@ -11,9 +11,9 @@ coverage. Keep the repo data-only, use existing Marble topic IDs only, and do
 not add a filtering script or any runtime dependency.
 
 **Status note:** This plan originally described a documentation-only 10-key /
-18-row QA pass. The current release state is 34 source keys and 66 alignment
-rows after the reviewed Geometry/Measurement, Data Handling/Patterns, and
-Fractions slices.
+18-row QA pass. The current release state is 40 source keys and 76 alignment
+rows after the reviewed Geometry/Measurement, Data Handling/Patterns,
+Fractions, and Integers slices.
 
 **Tech Stack:** Node.js ES modules, dependency-free validation script, UTF-8 JSON, Markdown docs.
 
@@ -76,9 +76,9 @@ Expected:
 
 ```json
 {
-  "sourceKeys": 34,
-  "alignmentRows": 66,
-  "declaredAlignmentCount": 66
+  "sourceKeys": 40,
+  "alignmentRows": 76,
+  "declaredAlignmentCount": 76
 }
 ```
 
@@ -126,9 +126,9 @@ exercise, exemplar, or standard text.
 
 ## Baseline
 
-- Source keys: 34
-- Alignment rows: 66
-- Current strands: Number System, Fractions, Geometry/Measurement, and Data Handling/Patterns
+- Source keys: 40
+- Alignment rows: 76
+- Current strands: Number System, Fractions, Geometry/Measurement, Data Handling/Patterns, and Integers
 - Board metadata: CBSE
 - Class metadata: 6
 - Subject metadata: Mathematics
@@ -158,14 +158,13 @@ Append the generated table rows from Step 1, then add:
 
 - Constructions remain unmapped.
 - Symmetry remains unmapped.
-- Integers and negative-number contexts remain unmapped.
 - Broader patterning and algebraic generalisation cleanup remains open.
 
 ## Recommendation
 
-Use integers and negative-number contexts as the next bounded slice with
-local source-key prefix `M6.INT`. Keep the slice to 4-6 source keys and 8-12
-alignment rows.
+Use Symmetry or Constructions as the next bounded slice, but only after checking
+whether the current Marble graph has enough existing clean topic IDs for
+reviewed mappings.
 ```
 
 - [ ] **Step 3: Check for accidental upstream prose risk**
