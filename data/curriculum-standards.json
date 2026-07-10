@@ -37409,7 +37409,7 @@
       "sourceUrl": "https://ncert.nic.in/textbook.php?fegp1=0-10",
       "textIncluded": false,
       "license": "Codes-only source keys included. No upstream textbook, syllabus, exercise, or standard text is included. See PROVENANCE.md.",
-      "topicCount": 40,
+      "topicCount": 46,
       "topics": [
         {
           "key": "ncert-class6-math-2026-27:M6.NS.001",
@@ -37570,6 +37570,30 @@
         {
           "key": "ncert-class6-math-2026-27:M6.INT.006",
           "code": "M6.INT.006"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.001",
+          "code": "M6.SYM.001"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.002",
+          "code": "M6.SYM.002"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.003",
+          "code": "M6.SYM.003"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.004",
+          "code": "M6.SYM.004"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.005",
+          "code": "M6.SYM.005"
+        },
+        {
+          "key": "ncert-class6-math-2026-27:M6.SYM.006",
+          "code": "M6.SYM.006"
         }
       ]
     }

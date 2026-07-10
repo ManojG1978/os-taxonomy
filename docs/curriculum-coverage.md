@@ -1,7 +1,7 @@
 # Curriculum Coverage
 
 The release covers 1,590 micro-topics across 8 subjects, aligned to 8 curriculum
-sources containing 3,301 standards or standard codes.
+sources containing 3,307 standards or standard codes.
 
 ## Subject Coverage
 
@@ -107,7 +107,7 @@ sources containing 3,301 standards or standard codes.
 | `ib-pyp-pspe`               | IB PYP Personal, Social and Physical Education Scope and Sequence                                                           |           138 | No, codes only |
 | `ngss-k5`                   | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
 | `ngss-ms`                   | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
-| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            40 | No, codes only |
+| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            46 | No, codes only |
 
 ## Alignment Infrastructure
 
@@ -122,9 +122,10 @@ full-board coverage release.
 
 `ncert-class6-math-2026-27` provides codes-only source keys for small NCERT
 Class 6 Mathematics pilot slices in Number System, Fractions,
-Geometry/Measurement, Data Handling/Patterns, and Integers. Alignment rows use
-`board: "CBSE"` so products can test CBSE-facing board, class, subject, and
-strand filtering without treating the pilot as a full-board coverage release.
+Geometry/Measurement, Data Handling/Patterns, Integers, and Symmetry.
+Alignment rows use `board: "CBSE"` so products can test CBSE-facing board,
+class, subject, and strand filtering without treating the pilot as a
+full-board coverage release.
 
 Current matrix:
 
@@ -170,9 +171,15 @@ Current matrix:
 | `M6.INT.004` | Integers               |    2 | Number Representation & Place Value                        | direct, supporting |
 | `M6.INT.005` | Integers               |    1 | Number Representation & Place Value                        | direct             |
 | `M6.INT.006` | Integers               |    1 | Number Representation & Place Value                        | extension          |
+| `M6.SYM.001` | Symmetry               |    2 | Geometry                                                   | supporting, direct |
+| `M6.SYM.002` | Symmetry               |    2 | Geometry                                                   | direct, supporting |
+| `M6.SYM.003` | Symmetry               |    2 | Geometry                                                   | direct, supporting |
+| `M6.SYM.004` | Symmetry               |    2 | Geometry                                                   | direct, supporting |
+| `M6.SYM.005` | Symmetry               |    1 | Geometry                                                   | direct             |
+| `M6.SYM.006` | Symmetry               |    1 | Geometry                                                   | extension          |
 
-Remaining useful Class 6 Mathematics gaps include Symmetry, Constructions, and
-additional algebraic patterning cleanup.
+Remaining useful Class 6 Mathematics gaps include Constructions and additional
+algebraic patterning cleanup.
 
 ## US And UK Framing
 
