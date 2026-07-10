@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 
@@ -140,4 +140,17 @@ test('analyzeArchitecture ignores import-shaped text that is not a static import
 
 test('live EaseFactor production modules satisfy architecture rules', () => {
   assert.deepEqual(analyzeArchitecture(resolve('scripts/easefactor')).violations, []);
+});
+
+test('composition roots contain composition only', () => {
+  const declarations = (relativePath) => {
+    const source = readFileSync(resolve(relativePath), 'utf8');
+    return [
+      ...[...source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g)].map((match) => match[1]),
+      ...[...source.matchAll(/(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\(/g)].map((match) => match[1]),
+    ];
+  };
+
+  assert.deepEqual(declarations('scripts/easefactor-api.mjs'), ['createEaseFactorApiServer']);
+  assert.deepEqual(declarations('scripts/easefactor-reference.mjs'), []);
 });

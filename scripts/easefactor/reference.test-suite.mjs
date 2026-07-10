@@ -6,4 +6,5 @@ import './content/content-selection.test.mjs';
 import './planner/planning.test.mjs';
 import './companion/parent-journey.test.mjs';
 import './reference-cli.test.mjs';
+import './reference-exports.test.mjs';
 import './architecture.test.mjs';

@@ -3,6 +3,8 @@ import './api/request-body.test.mjs';
 import './api/query.test.mjs';
 import './api/errors.test.mjs';
 import './api/taxonomy-presenter.test.mjs';
+import './api/router.test.mjs';
+import './api/routes/route-factories.test.mjs';
 import './api/routes/companion-routes.test.mjs';
 import './api/routes/taxonomy-routes.test.mjs';
 import './api/routes/planner-routes.test.mjs';
