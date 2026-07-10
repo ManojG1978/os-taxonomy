@@ -22,6 +22,7 @@
 ## File Structure
 
 - `scripts/easefactor-reference.mjs`: fixed contracts, validators, outcome evaluator, and journey orchestrator.
+- `scripts/easefactor-parent-journey-fixture.test-helper.mjs`: shared synthetic request fixture for both test suites.
 - `scripts/easefactor-reference.test.mjs`: reference behavior and boundary tests.
 - `scripts/easefactor-api.mjs`: thin endpoint and HTTP error mapping.
 - `scripts/easefactor-api.test.mjs`: HTTP success and failure contracts.
@@ -34,6 +35,7 @@
 
 **Files:**
 
+- Create: `scripts/easefactor-parent-journey-fixture.test-helper.mjs`
 - Modify: `scripts/easefactor-reference.test.mjs`
 - Modify: `scripts/easefactor-reference.mjs`
 
@@ -44,10 +46,10 @@
 
 - [ ] **Step 1: Write the failing successful-journey test**
 
-Add both new exports to the reference-test imports. Add this reusable fixture:
+Create `scripts/easefactor-parent-journey-fixture.test-helper.mjs` with this reusable fixture:
 
 ```js
-const makeParentJourneyRequest = (overrides = {}) => ({
+export const makeParentJourneyRequest = (overrides = {}) => ({
   context: {
     board: 'CBSE',
     curriculum: 'ncert-class6-math-2026-27',
@@ -77,6 +79,14 @@ const makeParentJourneyRequest = (overrides = {}) => ({
   ...overrides,
 });
 ```
+
+Import it in `scripts/easefactor-reference.test.mjs`:
+
+```js
+import {makeParentJourneyRequest} from './easefactor-parent-journey-fixture.test-helper.mjs';
+```
+
+Add both new production exports to the existing reference-module import list.
 
 Add the test:
 
@@ -308,7 +318,7 @@ Run:
 ```powershell
 node --test --test-name-pattern="parent journey|parent outcome|reviewed household activity" scripts/easefactor-reference.test.mjs
 npm run test:easefactor
-git add -- scripts/easefactor-reference.mjs scripts/easefactor-reference.test.mjs
+git add -- scripts/easefactor-parent-journey-fixture.test-helper.mjs scripts/easefactor-reference.mjs scripts/easefactor-reference.test.mjs
 git diff --cached --check
 git commit -m "feat: add parent companion fractions journey"
 ```
@@ -321,6 +331,7 @@ Expected: focused and full reference tests pass with 0 failures; commit succeeds
 
 **Files:**
 
+- Consume: `scripts/easefactor-parent-journey-fixture.test-helper.mjs`
 - Modify: `scripts/easefactor-api.test.mjs`
 - Modify: `scripts/easefactor-api.mjs`
 
@@ -331,7 +342,11 @@ Expected: focused and full reference tests pass with 0 failures; commit succeeds
 
 - [ ] **Step 1: Write the failing endpoint success test**
 
-Copy `makeParentJourneyRequest` into the API test file, then add:
+Import the shared fixture into the API test file, then add the test:
+
+```js
+import {makeParentJourneyRequest} from './easefactor-parent-journey-fixture.test-helper.mjs';
+```
 
 ```js
 test('POST /companion/v1/parent-journey returns the deterministic parent journey', async () => {
@@ -519,7 +534,7 @@ Expected: documentation truth checks are manually clean; validator and both suit
 
 ### Task 4: Full Verification and Handoff
 
-**Files:** Verify all six modified implementation and documentation files.
+**Files:** Verify all seven modified implementation, test-helper, and documentation files.
 
 **Interfaces:** Consumes Tasks 1-3 and produces fresh release evidence.
 
@@ -544,7 +559,7 @@ Expected: no output.
 - [ ] **Step 3: Inspect the scoped diff and repository state**
 
 ```powershell
-git diff 17364f3..HEAD -- scripts/easefactor-reference.mjs scripts/easefactor-reference.test.mjs scripts/easefactor-api.mjs scripts/easefactor-api.test.mjs docs/easefactor-reference-slice.md docs/easefactor-product-roadmap.md
+git diff 17364f3..HEAD -- scripts/easefactor-parent-journey-fixture.test-helper.mjs scripts/easefactor-reference.mjs scripts/easefactor-reference.test.mjs scripts/easefactor-api.mjs scripts/easefactor-api.test.mjs docs/easefactor-reference-slice.md docs/easefactor-product-roadmap.md
 git diff --check 17364f3..HEAD
 git status --short
 git log -4 --oneline
