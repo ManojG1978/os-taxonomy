@@ -49,15 +49,64 @@ Class 6 Mathematics Number System
 This repo does not store observations, user accounts, or RBAC policies.
 Product state belongs in product services and product infrastructure.
 
+## Implementation Structure
+
+The reference slice is split into focused module groups under
+`scripts/easefactor/`:
+
+| Module group | Responsibility |
+|---|---|
+| `release/` | Load and verify the released JSON files, manifest counts, and checksums. |
+| `graph/` | Build the in-memory taxonomy graph and provide traversal/query operations. |
+| `learner/` | Derive request-local mastery, readiness, learning gaps, and mastery summaries. |
+| `content/` | Validate synthetic content mappings and select usable mapped content. |
+| `planner/` | Build diagnostic and remediation plans and next-best-topic recommendations. |
+| `companion/` | Enforce the fixed parent-journey contract and compose its reviewed synthetic journey. |
+| `api/` | Provide HTTP primitives, presentation, routing, and route-family factories. |
+
+Dependencies point inward from the executable edges to domain operations:
+
+```text
+released JSON -> release loader -> graph -> learner/content -> planner/companion
+                                                        ^
+HTTP server -> router and route-family factories -------|
+```
+
+- Released JSON is read only by the release loader.
+- Domain modules do not depend on HTTP.
+- Route families translate HTTP contracts and receive domain operations through
+  factories.
+- The two top-level scripts, `scripts/easefactor-reference.mjs` and
+  `scripts/easefactor-api.mjs`, are executable composition roots.
+- `scripts/easefactor/architecture.test.mjs` enforces allowed imports, prevents
+  domain-to-HTTP and composition-root imports, restricts taxonomy file access
+  to the release loader, detects module cycles, and keeps the composition roots
+  focused on wiring.
+
+To extend the reference slice, add pure behavior to the closest domain group,
+cover it in that group's tests, and expose it from a route-family factory only
+when an HTTP contract is needed. Inject the new operation from
+`scripts/easefactor-api.mjs`; do not read `data/` directly, import HTTP from a
+domain module, or add persistence. Keep examples synthetic and keep real
+learner, customer, and product state outside this repository.
+
 ## Run It
 
 From the worktree root:
 
-- `npm run validate`
-- `npm run test:easefactor`
-- `npm run test:easefactor-api`
-- `node scripts/easefactor-reference.mjs --demo`
-- `npm run serve:easefactor-api`
+```powershell
+npm run validate
+npm run test:easefactor
+npm run test:easefactor-api
+node scripts/easefactor-reference.mjs
+$demo = node scripts/easefactor-reference.mjs --demo | ConvertFrom-Json
+git diff --check
+```
+
+The default CLI prints the learning-graph summary. Parsing the demo output with
+`ConvertFrom-Json` verifies that the synthetic recommendation trace is valid
+JSON. To inspect the local API after the automated gate, run
+`npm run serve:easefactor-api`.
 
 The demo run is intentionally synthetic and prints a deterministic recommendation
 trace for inspection.
