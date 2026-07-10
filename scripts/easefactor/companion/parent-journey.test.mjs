@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 
-import {buildParentCompanionJourney, loadTaxonomyRelease, makeGraphStore, validateReviewedHouseholdActivity} from '../../easefactor-reference.mjs';
+import {loadTaxonomyRelease, makeGraphStore} from '../../easefactor-reference.mjs';
+import {getParentConcern, getParentJourneyContext} from './parent-journey-contract.mjs';
+import {validateReviewedHouseholdActivity} from './parent-journey-content.mjs';
+import {buildParentCompanionJourney} from './parent-journey.mjs';
 import {makeParentJourneyRequest} from './parent-journey-fixture.test-helper.mjs';
 
 test('buildParentCompanionJourney returns the complete reviewed fractions journey', () => {
@@ -22,6 +25,15 @@ test('buildParentCompanionJourney returns the complete reviewed fractions journe
   assert.equal(journey.parentOutcome.status, 'passed');
   assert.equal(journey.parentOutcome.understoodGap, true);
   assert.equal(journey.parentOutcome.identifiedFirstAction, true);
+});
+
+test('parent journey fixed contract accessors return isolated copies', () => {
+  const context = getParentJourneyContext();
+  const concern = getParentConcern();
+  context.language = 'hi-IN';
+  concern.text = 'changed';
+  assert.equal(getParentJourneyContext().language, 'en-IN');
+  assert.equal(getParentConcern().text, 'My child finds it hard to tell which fraction is bigger.');
 });
 
 test('parent journey returns not enough information without number-line evidence', () => {
@@ -145,7 +157,8 @@ test('parent journey ordering and output are identical across process timezones'
   const referenceUrl = new URL('../../easefactor-reference.mjs', import.meta.url).href;
   const fixtureUrl = new URL('./parent-journey-fixture.test-helper.mjs', import.meta.url).href;
   const script = `
-    import {buildParentCompanionJourney, deriveMasteryState, loadTaxonomyRelease, makeGraphStore} from ${JSON.stringify(referenceUrl)};
+    import {deriveMasteryState, loadTaxonomyRelease, makeGraphStore} from ${JSON.stringify(referenceUrl)};
+    import {buildParentCompanionJourney} from ${JSON.stringify(new URL('./parent-journey.mjs', import.meta.url).href)};
     import {makeParentJourneyRequest} from ${JSON.stringify(fixtureUrl)};
     const diagnosticEvents = [
       {topicId: 'mt_vKcxX6iNOA', result: 'secure', score: 0.92, observedAt: '2026-07-10T09:00:00.000Z'},

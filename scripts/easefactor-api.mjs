@@ -2,13 +2,13 @@ import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 
 import {
-    buildParentCompanionJourney,
     checkReadiness,
     deriveMasteryState,
     findLearningGaps,
     loadTaxonomyRelease,
     makeGraphStore,
 } from './easefactor-reference.mjs';
+import {buildParentCompanionJourney} from './easefactor/companion/parent-journey.mjs';
 import {buildMasterySummary} from './easefactor/learner/mastery-summary.mjs';
 import {buildDiagnosticPlan} from './easefactor/planner/diagnostic-plan.mjs';
 import {recommendNextBestTopics} from './easefactor/planner/next-best-topics.mjs';
