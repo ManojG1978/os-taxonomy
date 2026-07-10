@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
 import {
+  buildParentCompanionJourney,
   buildRemediationPlan,
   checkReadiness,
   deriveMasteryState,
@@ -14,7 +15,9 @@ import {
   makeGraphStore,
   recommendNextBestTopics,
   validateContentMappings,
+  validateReviewedHouseholdActivity,
 } from './easefactor-reference.mjs';
+import {makeParentJourneyRequest} from './easefactor-parent-journey-fixture.test-helper.mjs';
 
 const fixtureDataFiles = [
   'manifest.json',
@@ -551,6 +554,68 @@ test('recommendNextBestTopics keeps high-confidence developing topics when inclu
     response.recommendations.some((recommendation) => recommendation.topicId === 'mt_FHIAv6dfhU'),
     'developing high-confidence Number System topic should remain a recommendation candidate',
   );
+});
+
+test('buildParentCompanionJourney returns the complete reviewed fractions journey', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  const journey = buildParentCompanionJourney(graph, makeParentJourneyRequest());
+  assert.equal(journey.taxonomyVersion, 'v1');
+  assert.equal(journey.journeyVersion, 'parent-fractions-v1');
+  assert.equal(journey.intake.concern, 'My child finds it hard to tell which fraction is bigger.');
+  assert.deepEqual(journey.diagnostic.prompts.map((row) => row.topicId), ['mt_vKcxX6iNOA', 'mt_Kr3IyA6m-O', 'mt_IfEgu0X449']);
+  assert.equal(journey.foundationalGap.status, 'identified');
+  assert.equal(journey.foundationalGap.topicId, 'mt_Kr3IyA6m-O');
+  assert.match(journey.explanation, /number line/i);
+  assert.deepEqual(journey.remediationSteps.map((row) => row.actionId), ['locate-benchmark-fractions', 'place-fractions-zero-to-one', 'compare-number-line-positions']);
+  assert.equal(journey.activity.activityId, 'household-fraction-strip-number-line-v1');
+  assert.equal(journey.activity.review.status, 'reviewed');
+  assert.equal(journey.recheck.status, 'improved');
+  assert.equal(journey.parentOutcome.status, 'passed');
+  assert.equal(journey.parentOutcome.understoodGap, true);
+  assert.equal(journey.parentOutcome.identifiedFirstAction, true);
+});
+
+test('parent journey returns not enough information without number-line evidence', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  const journey = buildParentCompanionJourney(graph, makeParentJourneyRequest({diagnosticEvents: [], recheckEvents: []}));
+  assert.equal(journey.foundationalGap.status, 'not-enough-information');
+  assert.equal(journey.activity, null);
+  assert.deepEqual(journey.remediationSteps, []);
+  assert.equal(journey.recheck.status, 'not-submitted');
+});
+
+test('parent journey is deterministic and keeps diagnostic and recheck evidence separate', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  const request = makeParentJourneyRequest();
+  const first = buildParentCompanionJourney(graph, request);
+  assert.deepEqual(first, buildParentCompanionJourney(graph, structuredClone(request)));
+  assert.equal(first.foundationalGap.evidenceStatus, 'developing');
+  assert.equal(first.recheck.evidenceStatus, 'secure');
+});
+
+test('reviewed household activity normalizes draft, unknown-topic, and invalid-mapping failures', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'draft'}, topicIds: ['mt_Kr3IyA6m-O'], contentMappings: []}), (error) => error.code === 'invalid_reviewed_activity');
+  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'reviewed'}, topicIds: ['mt_missing'], contentMappings: []}), (error) => error.code === 'invalid_reviewed_activity');
+  assert.throws(() => validateReviewedHouseholdActivity(graph, {review: {status: 'reviewed'}, topicIds: ['mt_Kr3IyA6m-O'], contentMappings: [{contentId: 'bad', topicId: 'mt_Kr3IyA6m-O', taxonomyVersion: 'v1', role: 'unknown', confidence: 'reviewed'}]}), (error) => error.code === 'invalid_reviewed_activity');
+});
+
+test('parent outcome requires both comprehension and action answers', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  const unmeasured = buildParentCompanionJourney(graph, makeParentJourneyRequest({parentOutcomeResponses: undefined}));
+  const partial = buildParentCompanionJourney(graph, makeParentJourneyRequest({parentOutcomeResponses: {foundationalGapTopicId: 'mt_Kr3IyA6m-O', firstActionId: 'wrong'}}));
+  assert.equal(unmeasured.parentOutcome.status, 'not-measured');
+  assert.equal(partial.parentOutcome.status, 'not-passed');
+  assert.equal(partial.parentOutcome.understoodGap, true);
+  assert.equal(partial.parentOutcome.identifiedFirstAction, false);
+});
+
+test('parent journey requires fixed context, synthetic mode, request-only consent, and no private fields', () => {
+  const graph = makeGraphStore(loadTaxonomyRelease());
+  assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({evidenceMode: 'production'})), (error) => error.code === 'synthetic_evidence_required');
+  assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({consent: {...makeParentJourneyRequest().consent, scope: 'persistent'}})), (error) => error.code === 'invalid_consent_boundary');
+  assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({context: {...makeParentJourneyRequest().context, language: 'hi-IN'}})), (error) => error.code === 'unsupported_parent_journey_context');
+  assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({learnerId: 'child-123'})), (error) => error.code === 'private_data_not_allowed');
 });
 
 test('CLI --demo emits a valid recommendation payload', () => {

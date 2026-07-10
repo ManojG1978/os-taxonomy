@@ -303,6 +303,37 @@ export const findLearningGaps = (graph, masteryByTopic, topicId) => {
 
 const allowedContentRoles = new Set(['teaches', 'practices', 'assesses', 'reviews', 'extends']);
 const allowedContentConfidence = new Set(['machine', 'reviewed', 'verified']);
+const parentJourneyContext = Object.freeze({board: 'CBSE', curriculum: 'ncert-class6-math-2026-27', class: 6, subject: 'Mathematics', language: 'en-IN', topicFamily: 'fractions-comparison'});
+const parentConcern = Object.freeze({concernId: 'fraction-size-comparison', text: 'My child finds it hard to tell which fraction is bigger.', targetTopicId: 'mt_IfEgu0X449', foundationalTopicId: 'mt_Kr3IyA6m-O'});
+const parentDiagnosticPrompts = Object.freeze([
+  {rank: 1, promptId: 'name-fraction-parts', topicId: 'mt_vKcxX6iNOA', prompt: 'In 3/4, what do 3 and 4 tell us?'},
+  {rank: 2, promptId: 'place-fraction-number-line', topicId: 'mt_Kr3IyA6m-O', prompt: 'Place 1/4, 1/2, and 3/4 between zero and one.'},
+  {rank: 3, promptId: 'compare-fractions', topicId: 'mt_IfEgu0X449', prompt: 'Which is larger, 2/5 or 4/5, and how do you know?'},
+]);
+const parentRemediationSteps = Object.freeze([
+  {rank: 1, actionId: 'locate-benchmark-fractions', topicId: 'mt_Kr3IyA6m-O', instruction: 'Locate one-half, one-quarter, and three-quarters on a line from zero to one.'},
+  {rank: 2, actionId: 'place-fractions-zero-to-one', topicId: 'mt_Kr3IyA6m-O', instruction: 'Place unfamiliar proper fractions between zero and one.'},
+  {rank: 3, actionId: 'compare-number-line-positions', topicId: 'mt_IfEgu0X449', instruction: 'Compare two fractions by checking which position is farther to the right.'},
+]);
+const reviewedHouseholdActivity = Object.freeze({
+  activityId: 'household-fraction-strip-number-line-v1',
+  version: 1,
+  review: {status: 'reviewed', scope: 'Marble-authored Class 6 fraction comparison reference activity'},
+  title: 'Build a fraction number line with paper strips',
+  purpose: 'Connect fraction size to position between zero and one.',
+  topicIds: ['mt_Kr3IyA6m-O', 'mt_IfEgu0X449'],
+  materials: ['Two sheets of scrap paper', 'Pencil', 'Ruler or straight edge'],
+  estimatedMinutes: 15,
+  instructions: ['Mark zero and one at the ends of a paper strip.', 'Fold or measure to mark one-half, one-quarter, and three-quarters.', 'Ask the learner to place two new fractions and explain which is farther to the right.'],
+  evidencePrompts: ['The learner places benchmark fractions between zero and one.', 'The learner compares two fractions by referring to their positions.'],
+  accessibilityNotes: ['Read each instruction aloud if written directions are a barrier.', 'Use a longer strip and thicker marks if fine visual detail is difficult.'],
+  safetyNotes: ['Use child-safe scissors only if strips must be cut; tearing or folding is sufficient.'],
+  selectionReason: 'The submitted evidence points to fraction position on a number line as the first concept to strengthen.',
+  contentMappings: [
+    {contentId: 'household-fraction-strip-number-line-v1', topicId: 'mt_Kr3IyA6m-O', taxonomyVersion: 'v1', role: 'practices', confidence: 'reviewed', estimatedMinutes: 15},
+    {contentId: 'household-fraction-strip-number-line-v1', topicId: 'mt_IfEgu0X449', taxonomyVersion: 'v1', role: 'extends', confidence: 'reviewed', estimatedMinutes: 15},
+  ],
+});
 
 const safeNumber = (value, fallback = 0) => (
   typeof value === 'number' && Number.isFinite(value) ? value : fallback
@@ -709,6 +740,86 @@ export const buildDiagnosticPlan = (graph, request = {}) => {
     explanation: steps.length === 0
         ? `No diagnostic evidence is needed before teaching ${targetTopicId}.`
         : `Collect diagnostic evidence for ${steps.length} hard prerequisite${steps.length === 1 ? '' : 's'} before teaching ${targetTopicId}.`,
+  };
+};
+
+const parentJourneyError = (code, message = code) => Object.assign(new Error(message), {code});
+
+export const validateReviewedHouseholdActivity = (graph, activity) => {
+  if (!activity || activity.review?.status !== 'reviewed' || !Array.isArray(activity.topicIds) || activity.topicIds.length === 0) {
+    throw parentJourneyError('invalid_reviewed_activity', 'Household activity must be reviewed and map to at least one topic.');
+  }
+  try {
+    for (const topicId of activity.topicIds) graph.getTopic(topicId);
+    validateContentMappings(graph, activity.contentMappings);
+  } catch (error) {
+    throw parentJourneyError('invalid_reviewed_activity', error.message);
+  }
+  return activity;
+};
+
+const buildParentOutcome = (responses) => {
+  const expected = {foundationalGapTopicId: parentConcern.foundationalTopicId, firstActionId: parentRemediationSteps[0].actionId};
+  if (!responses) return {status: 'not-measured', understoodGap: null, identifiedFirstAction: null, expected};
+  const understoodGap = responses.foundationalGapTopicId === expected.foundationalGapTopicId;
+  const identifiedFirstAction = responses.firstActionId === expected.firstActionId;
+  return {status: understoodGap && identifiedFirstAction ? 'passed' : 'not-passed', understoodGap, identifiedFirstAction, expected};
+};
+
+const prohibitedParentJourneyFields = new Set(['learnerId', 'learnerName', 'childName', 'parentName', 'email', 'phone', 'address', 'customerId', 'accountId', 'persist', 'persistence', 'storage']);
+const findProhibitedField = (value) => {
+  if (!value || typeof value !== 'object') return null;
+  for (const [key, child] of Object.entries(value)) {
+    if (prohibitedParentJourneyFields.has(key)) return key;
+    const nested = findProhibitedField(child);
+    if (nested) return nested;
+  }
+  return null;
+};
+const validateEvidenceTopics = (graph, events) => {
+  if (!Array.isArray(events)) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence must be an array.');
+  for (const event of events) {
+    if (!event || typeof event !== 'object' || typeof event.topicId !== 'string') throw parentJourneyError('invalid_parent_journey_evidence', 'Each evidence event requires a topicId.');
+    graph.getTopic(event.topicId);
+  }
+};
+const validateParentJourneyBoundary = (graph, request) => {
+  for (const [field, expected] of Object.entries(parentJourneyContext)) {
+    if (request.context?.[field] !== expected) throw parentJourneyError('unsupported_parent_journey_context', `Unsupported parent journey ${field}.`);
+  }
+  if (request.concernId !== parentConcern.concernId) throw parentJourneyError('unsupported_parent_journey_context', 'Unsupported parent concern.');
+  if (request.evidenceMode !== 'synthetic') throw parentJourneyError('synthetic_evidence_required', 'Only synthetic evidence is accepted.');
+  if (request.consent?.purpose !== 'diagnostic-guidance' || request.consent?.scope !== 'request-only' || request.consent?.observationCapture !== 'request-only') throw parentJourneyError('invalid_consent_boundary', 'Consent must be request-only diagnostic guidance.');
+  const prohibitedField = findProhibitedField(request);
+  if (prohibitedField) throw parentJourneyError('private_data_not_allowed', `Private or persistent field is not allowed: ${prohibitedField}.`);
+  validateEvidenceTopics(graph, request.diagnosticEvents ?? []);
+  validateEvidenceTopics(graph, request.recheckEvents ?? []);
+};
+
+export const buildParentCompanionJourney = (graph, request = {}) => {
+  validateParentJourneyBoundary(graph, request);
+  const activity = validateReviewedHouseholdActivity(graph, reviewedHouseholdActivity);
+  const diagnosticMastery = deriveMasteryState(request.diagnosticEvents ?? []);
+  const recheckMastery = deriveMasteryState(request.recheckEvents ?? []);
+  const foundationalState = diagnosticMastery.get(parentConcern.foundationalTopicId) ?? null;
+  const gapIdentified = foundationalState !== null && !isSecureEnough(foundationalState);
+  const diagnosticPlan = buildDiagnosticPlan(graph, {targetTopicId: parentConcern.targetTopicId, masteryByTopic: diagnosticMastery, contentMappings: activity.contentMappings});
+  const learningGaps = findLearningGaps(graph, diagnosticMastery, parentConcern.targetTopicId);
+  const remediationPlan = buildRemediationPlan(graph, {targetTopicId: parentConcern.targetTopicId, masteryByTopic: diagnosticMastery, contentMappings: activity.contentMappings});
+  const recheckState = recheckMastery.get(parentConcern.foundationalTopicId) ?? null;
+  return {
+    taxonomyVersion: graph.taxonomyVersion,
+    journeyVersion: 'parent-fractions-v1',
+    intake: {context: {...parentJourneyContext}, concernId: parentConcern.concernId, concern: parentConcern.text},
+    diagnostic: {prompts: parentDiagnosticPrompts.map((row) => ({...row})), evidenceCount: request.diagnosticEvents?.length ?? 0, plan: diagnosticPlan},
+    foundationalGap: gapIdentified ? {status: 'identified', topicId: parentConcern.foundationalTopicId, evidenceStatus: foundationalState.status, confidence: foundationalState.confidence, graphGaps: learningGaps.gaps} : {status: 'not-enough-information', topicId: null, evidenceStatus: foundationalState?.status ?? 'unseen', confidence: foundationalState?.confidence ?? 0, nextPromptId: 'place-fraction-number-line'},
+    explanation: gapIdentified ? 'Comparing fractions is difficult because the submitted evidence shows that placing fractions by size on a number line is not yet consistent.' : 'There is not enough information to identify a foundational gap. Try the number-line diagnostic prompt first.',
+    remediationSteps: gapIdentified ? parentRemediationSteps.map((row) => ({...row})) : [],
+    remediationDecision: remediationPlan,
+    activity: gapIdentified ? structuredClone(activity) : null,
+    recheck: recheckState ? {status: isSecureEnough(recheckState) && gapIdentified ? 'improved' : 'needs-more-evidence', topicId: parentConcern.foundationalTopicId, evidenceStatus: recheckState.status, confidence: recheckState.confidence, prompt: 'Place 2/5 and 4/5 on the same number line, then explain which is larger.'} : {status: 'not-submitted', topicId: parentConcern.foundationalTopicId, evidenceStatus: 'unseen', confidence: 0, prompt: 'Place 2/5 and 4/5 on the same number line, then explain which is larger.'},
+    parentOutcome: buildParentOutcome(request.parentOutcomeResponses),
+    privacy: {evidenceMode: request.evidenceMode, scope: request.consent?.scope, persistence: 'none'},
   };
 };
 
