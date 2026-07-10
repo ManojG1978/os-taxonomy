@@ -8,8 +8,8 @@
   "homepage": "https://withmarble.com",
   "scripts": {
     "validate": "node scripts/validate.mjs",
-    "test:easefactor": "node --test scripts/easefactor-reference.test.mjs",
-    "test:easefactor-api": "node --test scripts/easefactor-api.test.mjs",
+    "test:easefactor": "node --test scripts/easefactor/reference.test-suite.mjs",
+    "test:easefactor-api": "node --test scripts/easefactor/api.test-suite.mjs",
     "serve:easefactor-api": "node scripts/easefactor-api.mjs"
   }
 }
