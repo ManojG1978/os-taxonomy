@@ -8,13 +8,15 @@ graph, and select the next bounded codes-only Class 6 Math slice to map.
 
 ## Scope
 
-This is a documentation and planning tranche. It does not add source keys,
-alignment rows, topics, dependencies, schemas, validation rules, manifest
-checksums, or a filtering script.
+Status note: this planning document was superseded by later reviewed data
+slices. The current `ncert-class6-math-2026-27` state is 34 source keys and 66
+alignment rows across Number System, Fractions, Geometry/Measurement, and Data
+Handling/Patterns. Keep this document as a historical planning artifact, not as
+the current release inventory.
 
 The tranche produces:
 
-- a row-level QA worksheet for the 18 existing pilot alignment rows
+- a row-level QA worksheet for the reviewed pilot alignment rows
 - a coverage gap summary for the current Number System pilot
 - a next-slice recommendation using existing Marble topic IDs only
 - a seed worksheet for the chosen next slice
@@ -22,17 +24,19 @@ The tranche produces:
 ## Current Pilot Shape
 
 The current pilot source is `ncert-class6-math-2026-27`. It is codes-only and
-contains 10 source keys:
+contains 34 source keys:
 
 - `M6.NS.001` through `M6.NS.010`
+- `M6.FR.001` through `M6.FR.008`
+- `M6.GM.001` through `M6.GM.008`
+- `M6.DH.001` through `M6.DH.008`
 
-The current alignment layer contains 18 rows for this source, all with:
+The current alignment layer contains 66 rows for this source, all with:
 
 - `country: "IN"`
 - `board: "CBSE"`
 - `class: 6`
 - `subject: "Mathematics"`
-- `strand: "Number System"`
 - `confidence: "reviewed"`
 - `source: "manual"`
 
@@ -45,10 +49,15 @@ The rows currently cover:
 - divisibility and remainder reasoning
 - place-value patterns
 - mathematical explanation support
+- fraction notation, equivalent fractions, fraction comparison, fraction
+  number-line placement, same-denominator fraction operations, mixed numbers,
+  and tenths/hundredths decimal links
+- geometry and measurement foundations
+- data handling and patterning foundations
 
 ## QA Questions
 
-The row-level audit should answer these questions for each of the 18 rows:
+The row-level audit should answer these questions for each row:
 
 - Does the `standardKey` resolve to the codes-only NCERT source?
 - Does the `topicId` resolve to a current Marble Mathematics topic?
@@ -67,12 +76,10 @@ book. Based on the present Marble topic graph, obvious unmapped areas include:
 
 - geometry foundations such as points, line segments, rays, lines, and angles
 - perimeter and area measurement
-- fractions
-- data handling and presentation
 - construction work
 - symmetry
 - integers and negative-number contexts
-- broader patterning and algebraic generalisation
+- broader patterning and algebraic generalisation cleanup
 
 These are not defects in the first pilot. They should be documented as planned
 expansion gaps so downstream consumers do not read the pilot as full-board
@@ -80,15 +87,16 @@ coverage.
 
 ## Recommended Next Slice
 
-Choose geometry and measurement as the next small slice, with the local slice
-code prefix `M6.GM`.
+Choose integers and negative-number contexts as the next small slice, with the
+local slice code prefix `M6.INT`.
 
 Rationale:
 
-- It maps cleanly to existing Marble `Geometry` and `Measurement` topics.
-- It exercises cross-domain Class 6 filtering without requiring new topic IDs.
-- It is less likely than integers to overlap awkwardly with the current Number
-  System pilot.
+- Geometry/Measurement, Fractions, and Data Handling/Patterns are already
+  represented in the current release.
+- Integers continues the Number System coverage but exercises a distinct
+  negative-number context.
+- It can stay compact: about 4-6 new source keys and 8-12 alignment rows.
 - It can stay compact: about 6-10 new source keys and 12-25 alignment rows.
 
 Candidate Marble topic IDs to review:
@@ -125,9 +133,9 @@ Candidate Marble topic IDs to review:
 | `mt_uDJY0X0hgo`    | Number Representation & Place Value | Fractions on a number line (age 11+) | Ordering mixed positive and negative values    |
 | `mt_RWUY7_IXvw`    | Number Representation & Place Value | Numbers on a number line             | Absolute value as distance from zero           |
 
-Use this alternative only if the team wants the next slice to remain inside
-number representation. Otherwise, geometry and measurement is the preferred
-next expansion.
+Fractions was selected before integers for the current data tranche because it
+had the broadest unmapped Class 6 gap and a clean set of existing Marble topic
+IDs. After that slice, integers is the preferred next expansion.
 
 ## Source Posture
 
@@ -150,5 +158,5 @@ Still run:
 npm run validate
 ```
 
-Expected result: validation passes with the existing 10 NCERT source keys and
-18 alignment rows unchanged.
+Expected result: validation passes with the current NCERT source-key and
+alignment-row counts.

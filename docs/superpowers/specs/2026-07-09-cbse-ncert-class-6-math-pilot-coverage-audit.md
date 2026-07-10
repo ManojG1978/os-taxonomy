@@ -6,14 +6,17 @@ exercise, exemplar, or standard text.
 
 ## Baseline
 
-- Source keys: 10
-- Alignment rows: 18
-- Current strand: Number System
+- Source keys: 34
+- Alignment rows: 66
+- Current strands: Number System, Fractions, Geometry/Measurement, and Data Handling/Patterns
 - Board metadata: CBSE
 - Class metadata: 6
 - Subject metadata: Mathematics
 
-## Row-Level QA
+## Number System Row-Level QA
+
+This table records the original Number System audit subset. The current
+source-level coverage matrix lives in `docs/curriculum-coverage.md`.
 
 | Source key                            | Topic ID        | Domain                              | Topic name                               | Match type   | QA status | QA note                                                                                  |
 |---------------------------------------|-----------------|-------------------------------------|------------------------------------------|--------------|-----------|------------------------------------------------------------------------------------------|
@@ -46,19 +49,18 @@ exercise, exemplar, or standard text.
   place-value-pattern, and mathematical-argument scaffolding.
 - One extension row intentionally reaches into a later factor/multiple topic for
   HCF, LCM, and prime-factorization continuity.
+- Later reviewed slices added Fractions, Geometry/Measurement, and Data
+  Handling/Patterns coverage while keeping the source codes-only.
 
 ## Planned Gaps
 
-- Geometry foundations remain unmapped.
-- Perimeter and area measurement remain unmapped.
-- Fractions remain unmapped.
-- Data handling and presentation remain unmapped.
 - Constructions remain unmapped.
 - Symmetry remains unmapped.
 - Integers and negative-number contexts remain unmapped.
-- Broader patterning and algebraic generalisation remain unmapped.
+- Broader patterning and algebraic generalisation cleanup remains open.
 
 ## Recommendation
 
-Use geometry and measurement as the next bounded slice with local source-key
-prefix `M6.GM`. Keep the slice to 6-10 source keys and 12-25 alignment rows.
+Use integers and negative-number contexts as the next bounded slice with local
+source-key prefix `M6.INT`. Keep the slice to 4-6 source keys and 8-12
+alignment rows.

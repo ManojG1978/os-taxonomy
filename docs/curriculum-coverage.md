@@ -1,7 +1,7 @@
 # Curriculum Coverage
 
 The release covers 1,590 micro-topics across 8 subjects, aligned to 8 curriculum
-sources containing 3,287 standards or standard codes.
+sources containing 3,295 standards or standard codes.
 
 ## Subject Coverage
 
@@ -107,7 +107,7 @@ sources containing 3,287 standards or standard codes.
 | `ib-pyp-pspe`               | IB PYP Personal, Social and Physical Education Scope and Sequence                                                           |           138 | No, codes only |
 | `ngss-k5`                   | Next Generation Science Standards K-5                                                                                       |            78 | No, codes only |
 | `ngss-ms`                   | Next Generation Science Standards Middle School                                                                             |            59 | No, codes only |
-| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            26 | No, codes only |
+| `ncert-class6-math-2026-27` | NCERT Class 6 Mathematics pilot                                                                                             |            34 | No, codes only |
 
 ## Alignment Infrastructure
 
@@ -121,10 +121,52 @@ full-board coverage release.
 ## India Pilot Coverage
 
 `ncert-class6-math-2026-27` provides codes-only source keys for small NCERT
-Class 6 Mathematics pilot slices in Number System, Geometry/Measurement, and
-Data Handling/Patterns. Alignment rows use `board: "CBSE"` so products can test
-CBSE-facing board, class, subject, and strand filtering without treating the
-pilot as a full-board coverage release.
+Class 6 Mathematics pilot slices in Number System, Fractions,
+Geometry/Measurement, and Data Handling/Patterns. Alignment rows use
+`board: "CBSE"` so products can test CBSE-facing board, class, subject, and
+strand filtering without treating the pilot as a full-board coverage release.
+
+Current matrix:
+
+| Source key  | Strand                 | Rows | Topic domains                                              | Match types        |
+|-------------|------------------------|-----:|------------------------------------------------------------|--------------------|
+| `M6.NS.001` | Number System          |    2 | Number Representation & Place Value                        | direct             |
+| `M6.NS.002` | Number System          |    1 | Addition & Subtraction                                     | supporting         |
+| `M6.NS.003` | Number System          |    2 | Number Representation & Place Value                        | direct, supporting |
+| `M6.NS.004` | Number System          |    2 | Multiplication & Division                                  | direct             |
+| `M6.NS.005` | Number System          |    3 | Counting & Cardinality, Mathematical Thinking              | supporting         |
+| `M6.NS.006` | Number System          |    2 | Multiplication & Division, Mathematical Thinking           | direct, supporting |
+| `M6.NS.007` | Number System          |    2 | Multiplication & Division                                  | direct, extension  |
+| `M6.NS.008` | Number System          |    1 | Multiplication & Division                                  | supporting         |
+| `M6.NS.009` | Number System          |    2 | Number Representation & Place Value, Mathematical Thinking | supporting         |
+| `M6.NS.010` | Number System          |    1 | Mathematical Thinking                                      | supporting         |
+| `M6.FR.001` | Fractions              |    2 | Fractions                                                  | direct             |
+| `M6.FR.002` | Fractions              |    2 | Fractions                                                  | direct, supporting |
+| `M6.FR.003` | Fractions              |    2 | Fractions                                                  | direct, supporting |
+| `M6.FR.004` | Fractions              |    2 | Fractions                                                  | direct, supporting |
+| `M6.FR.005` | Fractions              |    2 | Fractions                                                  | direct, supporting |
+| `M6.FR.006` | Fractions              |    2 | Fractions                                                  | supporting, direct |
+| `M6.FR.007` | Fractions              |    2 | Fractions                                                  | direct, extension  |
+| `M6.FR.008` | Fractions              |    2 | Fractions                                                  | direct, supporting |
+| `M6.GM.001` | Geometry/Measurement   |    2 | Geometry                                                   | direct, supporting |
+| `M6.GM.002` | Geometry/Measurement   |    2 | Geometry                                                   | direct             |
+| `M6.GM.003` | Geometry/Measurement   |    2 | Geometry                                                   | direct, supporting |
+| `M6.GM.004` | Geometry/Measurement   |    2 | Geometry                                                   | direct, supporting |
+| `M6.GM.005` | Geometry/Measurement   |    2 | Measurement                                                | direct, supporting |
+| `M6.GM.006` | Geometry/Measurement   |    2 | Measurement                                                | direct             |
+| `M6.GM.007` | Geometry/Measurement   |    2 | Measurement                                                | direct, supporting |
+| `M6.GM.008` | Geometry/Measurement   |    2 | Measurement                                                | direct             |
+| `M6.DH.001` | Data Handling/Patterns |    2 | Data & Statistics                                          | supporting         |
+| `M6.DH.002` | Data Handling/Patterns |    2 | Data & Statistics                                          | direct, supporting |
+| `M6.DH.003` | Data Handling/Patterns |    2 | Data & Statistics                                          | supporting, direct |
+| `M6.DH.004` | Data Handling/Patterns |    2 | Data & Statistics                                          | supporting, direct |
+| `M6.DH.005` | Data Handling/Patterns |    2 | Data & Statistics, Mathematical Thinking                   | direct, supporting |
+| `M6.DH.006` | Data Handling/Patterns |    2 | Data & Statistics                                          | supporting, direct |
+| `M6.DH.007` | Data Handling/Patterns |    2 | Mathematical Thinking                                      | supporting, direct |
+| `M6.DH.008` | Data Handling/Patterns |    2 | Algebra                                                    | extension          |
+
+Remaining useful Class 6 Mathematics gaps include Integers/negative numbers,
+Symmetry, Constructions, and additional algebraic patterning cleanup.
 
 ## US And UK Framing
 

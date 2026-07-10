@@ -3,24 +3,27 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:
 > executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Produce a documentation-only QA tranche for the existing 18 CBSE/NCERT Class 6 Math pilot alignment rows and
+**Goal:** Reconcile the current CBSE/NCERT Class 6 Math pilot inventory and
 choose the next bounded codes-only mapping slice.
 
-**Architecture:** Keep the released data unchanged while auditing the pilot mapping through repo-local Markdown
-worksheets. Use scripts and one-off Node checks only to inspect existing JSON and verify references; do not add a
-filtering script or any runtime dependency.
+**Architecture:** Use the released JSON as the source of truth for counts and
+coverage. Keep the repo data-only, use existing Marble topic IDs only, and do
+not add a filtering script or any runtime dependency.
+
+**Status note:** This plan originally described a documentation-only 10-key /
+18-row QA pass. The current release state is 34 source keys and 66 alignment
+rows after the reviewed Geometry/Measurement, Data Handling/Patterns, and
+Fractions slices.
 
 **Tech Stack:** Node.js ES modules, dependency-free validation script, UTF-8 JSON, Markdown docs.
 
 ## Global Constraints
 
 - Treat this as a dataset release, not an application.
-- Do not add runtime dependencies, build tooling, generated lockfiles, app frameworks, topics, dependencies, source
-  keys, alignment rows, schemas, manifest checksums, or a filtering script.
+- Do not add runtime dependencies, build tooling, generated lockfiles, app
+  frameworks, topics, dependencies, schemas, or a filtering script.
 - Use existing Marble topic IDs only.
 - Do not add full upstream NCERT, CBSE, textbook, exercise, exemplar, syllabus, or standards text.
-- Keep `data/topics.json`, `data/dependencies.json`, `data/curriculum-standards.json`,
-  `data/curriculum-alignments.json`, and `data/manifest.json` unchanged in this tranche.
 - Run `npm run validate` before handoff.
 - Do not commit changes unless the user explicitly asks for a commit.
 
@@ -30,7 +33,7 @@ filtering script or any runtime dependency.
 
 - Read `data/topics.json`: source of current Marble Mathematics topic IDs and descriptions.
 - Read `data/curriculum-standards.json`: source of the codes-only NCERT Class 6 Math source keys.
-- Read `data/curriculum-alignments.json`: source of the 18 current pilot alignment rows.
+- Read `data/curriculum-alignments.json`: source of the current pilot alignment rows.
 - Read `docs/superpowers/specs/2026-07-09-cbse-ncert-class-6-math-pilot-topic-review.md`: existing first-pilot topic
   review worksheet.
 - Create `docs/superpowers/specs/2026-07-09-cbse-ncert-class-6-math-pilot-coverage-audit.md`: row-level QA and coverage
@@ -73,9 +76,9 @@ Expected:
 
 ```json
 {
-  "sourceKeys": 10,
-  "alignmentRows": 18,
-  "declaredAlignmentCount": 18
+  "sourceKeys": 34,
+  "alignmentRows": 66,
+  "declaredAlignmentCount": 66
 }
 ```
 
@@ -97,7 +100,7 @@ Expected: `missing` is an empty array.
 
 **Interfaces:**
 
-- Consumes: 18 current alignment rows and current Marble topic metadata.
+- Consumes: current alignment rows and current Marble topic metadata.
 - Produces: a row-level QA worksheet and coverage gap summary.
 
 - [ ] **Step 1: Generate the pilot row inventory**
@@ -108,7 +111,7 @@ Run:
 node -e "const fs=require('fs');const topics=JSON.parse(fs.readFileSync('data/topics.json','utf8')).topics;const by=new Map(topics.map(t=>[t.id,t]));const rows=JSON.parse(fs.readFileSync('data/curriculum-alignments.json','utf8')).alignments.filter(r=>r.curriculum==='ncert-class6-math-2026-27');for(const r of rows){const t=by.get(r.topicId);console.log('| `'+r.standardKey+'` | `'+r.topicId+'` | '+t.domain+' | '+t.name+' | `'+r.matchType+'` | pass | |');}"
 ```
 
-Expected: 18 Markdown table rows.
+Expected: one Markdown table row per current alignment row.
 
 - [ ] **Step 2: Create the audit document**
 
@@ -123,9 +126,9 @@ exercise, exemplar, or standard text.
 
 ## Baseline
 
-- Source keys: 10
-- Alignment rows: 18
-- Current strand: Number System
+- Source keys: 34
+- Alignment rows: 66
+- Current strands: Number System, Fractions, Geometry/Measurement, and Data Handling/Patterns
 - Board metadata: CBSE
 - Class metadata: 6
 - Subject metadata: Mathematics
@@ -136,7 +139,7 @@ exercise, exemplar, or standard text.
 |------------|----------|--------|------------|------------|-----------|---------|
 ```
 
-Append the 18 generated table rows from Step 1, then add:
+Append the generated table rows from Step 1, then add:
 
 ```markdown
 
@@ -153,19 +156,16 @@ Append the 18 generated table rows from Step 1, then add:
 
 ## Planned Gaps
 
-- Geometry foundations remain unmapped.
-- Perimeter and area measurement remain unmapped.
-- Fractions remain unmapped.
-- Data handling and presentation remain unmapped.
 - Constructions remain unmapped.
 - Symmetry remains unmapped.
 - Integers and negative-number contexts remain unmapped.
-- Broader patterning and algebraic generalisation remain unmapped.
+- Broader patterning and algebraic generalisation cleanup remains open.
 
 ## Recommendation
 
-Use geometry and measurement as the next bounded slice with local source-key
-prefix `M6.GM`. Keep the slice to 6-10 source keys and 12-25 alignment rows.
+Use integers and negative-number contexts as the next bounded slice with
+local source-key prefix `M6.INT`. Keep the slice to 4-6 source keys and 8-12
+alignment rows.
 ```
 
 - [ ] **Step 3: Check for accidental upstream prose risk**
@@ -279,7 +279,7 @@ Run:
 npm run validate
 ```
 
-Expected: validation passes with the existing 10 NCERT source keys and 18 alignment rows unchanged.
+Expected: validation passes with the current NCERT source-key and alignment-row counts.
 
 - [ ] **Step 2: Confirm no data files changed**
 

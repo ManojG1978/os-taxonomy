@@ -25,8 +25,10 @@ curriculum-aligned content.
 - `data/topics.json`: 1,590 micro-topics. These are the graph nodes.
 - `data/dependencies.json`: 3,221 prerequisite relationships. These are the
   graph edges.
-- `data/curriculum-standards.json`: 7 curriculum sources and 3,261 standards or
+- `data/curriculum-standards.json`: 8 curriculum sources and 3,295 standards or
   standard codes.
+- `data/curriculum-alignments.json`: 66 reviewed board/class/subject alignment
+  rows for richer filtering metadata.
 - `data/clusters.json`: 183 subject/domain/age-band summaries.
 - `data/manifest.json`: release counts, codes-only source list, and SHA-256
   checksums for the released data files.
