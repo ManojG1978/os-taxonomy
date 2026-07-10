@@ -616,6 +616,10 @@ test('parent journey requires fixed context, synthetic mode, request-only consen
   assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({consent: {...makeParentJourneyRequest().consent, scope: 'persistent'}})), (error) => error.code === 'invalid_consent_boundary');
   assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({context: {...makeParentJourneyRequest().context, language: 'hi-IN'}})), (error) => error.code === 'unsupported_parent_journey_context');
   assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({learnerId: 'child-123'})), (error) => error.code === 'private_data_not_allowed');
+  for (const field of ['studentId', 'userId', 'guardianId', 'save', 'retain']) {
+    assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({[field]: 'not-allowed'})), (error) => error.code === 'private_data_not_allowed');
+  }
+  assert.throws(() => buildParentCompanionJourney(graph, makeParentJourneyRequest({diagnosticEvents: [{topicId: 'mt_cFltwUQi-d', result: 'partial'}]})), (error) => error.code === 'invalid_parent_journey_evidence');
 });
 
 test('CLI --demo emits a valid recommendation payload', () => {

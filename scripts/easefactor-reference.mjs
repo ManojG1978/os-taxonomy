@@ -766,32 +766,37 @@ const buildParentOutcome = (responses) => {
   return {status: understoodGap && identifiedFirstAction ? 'passed' : 'not-passed', understoodGap, identifiedFirstAction, expected};
 };
 
-const prohibitedParentJourneyFields = new Set(['learnerId', 'learnerName', 'childName', 'parentName', 'email', 'phone', 'address', 'customerId', 'accountId', 'persist', 'persistence', 'storage']);
-const findProhibitedField = (value) => {
-  if (!value || typeof value !== 'object') return null;
-  for (const [key, child] of Object.entries(value)) {
-    if (prohibitedParentJourneyFields.has(key)) return key;
-    const nested = findProhibitedField(child);
-    if (nested) return nested;
-  }
-  return null;
+const allowedParentJourneyFields = new Set(['context', 'concernId', 'evidenceMode', 'consent', 'diagnosticEvents', 'recheckEvents', 'parentOutcomeResponses']);
+const allowedContextFields = new Set(['board', 'curriculum', 'class', 'subject', 'language', 'topicFamily']);
+const allowedConsentFields = new Set(['purpose', 'scope', 'observationCapture']);
+const allowedEvidenceFields = new Set(['topicId', 'taxonomyVersion', 'result', 'score', 'observedAt']);
+const allowedOutcomeFields = new Set(['foundationalGapTopicId', 'firstActionId']);
+const allowedParentJourneyEvidenceTopics = new Set(['mt_vKcxX6iNOA', 'mt_Kr3IyA6m-O', 'mt_IfEgu0X449']);
+const assertOnlyFields = (value, allowedFields) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw parentJourneyError('private_data_not_allowed', 'Journey sections must be objects with reviewed fields only.');
+  const unexpected = Object.keys(value).find((field) => !allowedFields.has(field));
+  if (unexpected) throw parentJourneyError('private_data_not_allowed', `Private, persistent, or unsupported field is not allowed: ${unexpected}.`);
 };
 const validateEvidenceTopics = (graph, events) => {
   if (!Array.isArray(events)) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence must be an array.');
   for (const event of events) {
     if (!event || typeof event !== 'object' || typeof event.topicId !== 'string') throw parentJourneyError('invalid_parent_journey_evidence', 'Each evidence event requires a topicId.');
+    assertOnlyFields(event, allowedEvidenceFields);
     graph.getTopic(event.topicId);
+    if (!allowedParentJourneyEvidenceTopics.has(event.topicId)) throw parentJourneyError('invalid_parent_journey_evidence', `Evidence topic is outside the reviewed parent journey: ${event.topicId}.`);
   }
 };
 const validateParentJourneyBoundary = (graph, request) => {
+  assertOnlyFields(request, allowedParentJourneyFields);
+  assertOnlyFields(request.context, allowedContextFields);
+  assertOnlyFields(request.consent, allowedConsentFields);
+  if (request.parentOutcomeResponses !== undefined) assertOnlyFields(request.parentOutcomeResponses, allowedOutcomeFields);
   for (const [field, expected] of Object.entries(parentJourneyContext)) {
     if (request.context?.[field] !== expected) throw parentJourneyError('unsupported_parent_journey_context', `Unsupported parent journey ${field}.`);
   }
   if (request.concernId !== parentConcern.concernId) throw parentJourneyError('unsupported_parent_journey_context', 'Unsupported parent concern.');
   if (request.evidenceMode !== 'synthetic') throw parentJourneyError('synthetic_evidence_required', 'Only synthetic evidence is accepted.');
   if (request.consent?.purpose !== 'diagnostic-guidance' || request.consent?.scope !== 'request-only' || request.consent?.observationCapture !== 'request-only') throw parentJourneyError('invalid_consent_boundary', 'Consent must be request-only diagnostic guidance.');
-  const prohibitedField = findProhibitedField(request);
-  if (prohibitedField) throw parentJourneyError('private_data_not_allowed', `Private or persistent field is not allowed: ${prohibitedField}.`);
   validateEvidenceTopics(graph, request.diagnosticEvents ?? []);
   validateEvidenceTopics(graph, request.recheckEvents ?? []);
 };
