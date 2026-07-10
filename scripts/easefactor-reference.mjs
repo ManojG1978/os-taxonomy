@@ -1,108 +1,28 @@
 import {fileURLToPath} from 'node:url';
 import {loadTaxonomyRelease} from './easefactor/release/load-release.mjs';
 import {makeGraphStore} from './easefactor/graph/graph-store.mjs';
+import {deriveMasteryState, isSecureEnough} from './easefactor/learner/mastery.mjs';
+import {checkReadiness} from './easefactor/learner/readiness.mjs';
+import {findLearningGaps} from './easefactor/learner/learning-gaps.mjs';
+import {validateContentMappings} from './easefactor/content/content-mappings.mjs';
+import {
+  buildContentIndex,
+  buildContentSummary,
+  estimateMinutes,
+  isAssessableDiagnosticContent,
+  isReviewedTeachingContent,
+  isServableRemediationContent,
+  safeNumber,
+} from './easefactor/content/content-selection.mjs';
 
-export {loadTaxonomyRelease, makeGraphStore};
-
-const normalizeConfidence = (value) => {
-  if (typeof value !== 'number' || Number.isNaN(value)) {
-    return null;
-  }
-  return Math.max(0, Math.min(1, value));
+export {
+  checkReadiness,
+  deriveMasteryState,
+  findLearningGaps,
+  loadTaxonomyRelease,
+  makeGraphStore,
+  validateContentMappings,
 };
-
-const statusDefaultConfidence = {
-  secure: 0.95,
-  developing: 0.6,
-  needs_review: 0.3,
-  blocked: 0.1,
-  unseen: 0,
-};
-
-const deriveStatusFromEvidence = ({result, score}) => {
-  const normalizedScore = normalizeConfidence(score);
-
-  if (result === 'secure' || (normalizedScore !== null && normalizedScore >= 0.85)) {
-    return 'secure';
-  }
-  if (result === 'partial' || (normalizedScore !== null && normalizedScore >= 0.5)) {
-    return 'developing';
-  }
-  if (result === 'review') {
-    return 'needs_review';
-  }
-  return 'blocked';
-};
-
-const toObservedAtEpoch = (observedAt) => {
-  if (typeof observedAt === 'number' && Number.isFinite(observedAt)) {
-    return observedAt;
-  }
-  if (typeof observedAt === 'string' || observedAt instanceof Date) {
-    const parsed = Date.parse(observedAt);
-    if (!Number.isNaN(parsed)) {
-      return parsed;
-    }
-  }
-  return Number.NEGATIVE_INFINITY;
-};
-
-export const deriveMasteryState = (events = []) => {
-  const topicEventsById = new Map();
-  const safeEvents = Array.isArray(events) ? events : [];
-
-  for (const event of safeEvents) {
-    if (!event?.topicId) {
-      continue;
-    }
-
-    const topicEvents = topicEventsById.get(event.topicId) || [];
-    topicEvents.push(event);
-    topicEventsById.set(event.topicId, topicEvents);
-  }
-
-  const masteryByTopic = new Map();
-  for (const [topicId, eventsForTopic] of topicEventsById.entries()) {
-    const sortedEvidence = [...eventsForTopic].sort((a, b) =>
-      toObservedAtEpoch(a.observedAt) - toObservedAtEpoch(b.observedAt),
-    );
-
-    const latestEvent = sortedEvidence[sortedEvidence.length - 1];
-    const status = deriveStatusFromEvidence(latestEvent);
-    const explicitConfidence = normalizeConfidence(latestEvent.score);
-    const confidence = explicitConfidence ?? statusDefaultConfidence[status];
-    const evidenceTrail = sortedEvidence.map((event) => {
-      const eventConfidence = normalizeConfidence(event.score) ?? statusDefaultConfidence[deriveStatusFromEvidence(event)];
-      return {
-        learnerId: event.learnerId ?? null,
-        topicId: event.topicId,
-        taxonomyVersion: event.taxonomyVersion ?? null,
-        result: event.result ?? null,
-        score: typeof event.score === 'number' ? normalizeConfidence(event.score) : null,
-        observedAt: event.observedAt ?? null,
-        status: deriveStatusFromEvidence(event),
-        confidence: eventConfidence,
-      };
-    });
-
-    masteryByTopic.set(topicId, {
-      learnerId: latestEvent.learnerId ?? null,
-      topicId,
-      taxonomyVersion: latestEvent.taxonomyVersion ?? null,
-      status,
-      confidence,
-      lastEvidenceAt: latestEvent.observedAt ?? null,
-      evidenceTrail,
-      explanation: `${latestEvent.topicId} is ${status} with confidence ${confidence.toFixed(2)}`,
-    });
-  }
-
-  return masteryByTopic;
-};
-
-const isSecureEnough = (masteryState) => (
-  masteryState && (masteryState.status === 'secure' || (masteryState.status === 'developing' && masteryState.confidence >= 0.75))
-);
 
 const getMasteryState = (masteryByTopic, topicId) => {
   if (!masteryByTopic || typeof masteryByTopic.get !== 'function') {
@@ -111,89 +31,6 @@ const getMasteryState = (masteryByTopic, topicId) => {
   return masteryByTopic.get(topicId) ?? null;
 };
 
-export const checkReadiness = (graph, masteryByTopic, topicId) => {
-  const prerequisites = graph.getPrerequisites(topicId, {depth: 1}).prerequisites.filter((row) => row.strength === 'hard');
-  const blockedBy = [];
-  const prerequisiteStatus = {
-    secure: 0,
-    developing: 0,
-    needs_review: 0,
-    blocked: 0,
-    unseen: 0,
-  };
-
-  for (const prerequisite of prerequisites) {
-    const masteryState = getMasteryState(masteryByTopic, prerequisite.topicId);
-    if (!masteryState) {
-      prerequisiteStatus.unseen += 1;
-      blockedBy.push({
-        topicId: prerequisite.topicId,
-        status: 'unseen',
-        confidence: 0,
-        reason: prerequisite.reason ?? `Unknown evidence for prerequisite topic ${prerequisite.topicId}.`,
-        strength: 'hard',
-        distance: prerequisite.distance,
-      });
-      continue;
-    }
-
-    prerequisiteStatus[masteryState.status] = (prerequisiteStatus[masteryState.status] ?? 0) + 1;
-    if (!isSecureEnough(masteryState)) {
-      blockedBy.push({
-        topicId: prerequisite.topicId,
-        status: masteryState.status,
-        confidence: masteryState.confidence,
-        reason: prerequisite.reason ?? `Weak mastery evidence for prerequisite topic ${prerequisite.topicId}.`,
-        strength: 'hard',
-        distance: prerequisite.distance,
-      });
-    }
-  }
-
-  const readyToLearn = blockedBy.length === 0;
-  const developStatus = getMasteryState(masteryByTopic, topicId)?.status === 'developing';
-  const explanation = readyToLearn
-    ? 'Hard prerequisite evidence is sufficient to proceed.'
-    : 'Hard prerequisite evidence is missing or weak.';
-
-  return {
-    taxonomyVersion: graph.taxonomyVersion,
-    topicId,
-    readyToLearn,
-    prerequisiteStatus,
-    blockedBy,
-    developing: developStatus,
-    explanation,
-  };
-};
-
-export const findLearningGaps = (graph, masteryByTopic, topicId) => {
-  const readiness = checkReadiness(graph, masteryByTopic, topicId);
-  const sortedGaps = [...readiness.blockedBy].sort((a, b) => {
-    if (a.confidence !== b.confidence) {
-      return a.confidence - b.confidence;
-    }
-    return a.topicId.localeCompare(b.topicId);
-  });
-
-  const gaps = sortedGaps.map((gap, idx) => ({
-    rank: idx + 1,
-    topicId: gap.topicId,
-    status: gap.status,
-    confidence: gap.confidence,
-    whyItMatters: gap.reason,
-  }));
-
-  return {
-    taxonomyVersion: graph.taxonomyVersion,
-    topicId,
-    gaps,
-    explanation: `Learning gaps for ${topicId} are ranked by weakest evidence first.`,
-  };
-};
-
-const allowedContentRoles = new Set(['teaches', 'practices', 'assesses', 'reviews', 'extends']);
-const allowedContentConfidence = new Set(['machine', 'reviewed', 'verified']);
 const parentJourneyContext = Object.freeze({board: 'CBSE', curriculum: 'ncert-class6-math-2026-27', class: 6, subject: 'Mathematics', language: 'en-IN', topicFamily: 'fractions-comparison'});
 const parentConcern = Object.freeze({concernId: 'fraction-size-comparison', text: 'My child finds it hard to tell which fraction is bigger.', targetTopicId: 'mt_IfEgu0X449', foundationalTopicId: 'mt_Kr3IyA6m-O'});
 const parentDiagnosticPrompts = Object.freeze([
@@ -225,106 +62,6 @@ const reviewedHouseholdActivity = Object.freeze({
     {contentId: 'household-fraction-strip-number-line-v1', topicId: 'mt_IfEgu0X449', taxonomyVersion: 'v1', role: 'extends', confidence: 'reviewed', estimatedMinutes: 15},
   ],
 });
-
-const safeNumber = (value, fallback = 0) => (
-  typeof value === 'number' && Number.isFinite(value) ? value : fallback
-);
-
-const isReviewedTeachingContent = (mapping) => (
-  (mapping.role === 'teaches' || mapping.role === 'practices') &&
-  (mapping.confidence === 'reviewed' || mapping.confidence === 'verified')
-);
-
-const buildContentSummary = (content = []) => {
-  const roleRank = {
-    teaches: 0,
-    practices: 1,
-    assesses: 2,
-    reviews: 3,
-    extends: 4,
-  };
-
-  return [...content].sort((a, b) => {
-    const roleDiff = (roleRank[a.role] ?? 99) - (roleRank[b.role] ?? 99);
-    if (roleDiff !== 0) return roleDiff;
-
-    const confidenceRank = {verified: 0, reviewed: 1, machine: 2};
-    const confidenceDiff = (confidenceRank[a.confidence] ?? 99) - (confidenceRank[b.confidence] ?? 99);
-    if (confidenceDiff !== 0) return confidenceDiff;
-
-    const minutesDiff = safeNumber(a.estimatedMinutes, 0) - safeNumber(b.estimatedMinutes, 0);
-    if (minutesDiff !== 0) return minutesDiff;
-
-    return String(a.contentId ?? '').localeCompare(String(b.contentId ?? ''));
-  }).map((item) => ({
-    contentId: item.contentId,
-    role: item.role,
-    confidence: item.confidence,
-    estimatedMinutes: safeNumber(item.estimatedMinutes, 0),
-  }));
-};
-
-export const validateContentMappings = (graph, mappings) => {
-  if (!Array.isArray(mappings)) {
-    throw new Error('invalid_content_mappings: expected array');
-  }
-
-  for (const mapping of mappings) {
-    if (!mapping || typeof mapping !== 'object') {
-      throw new Error('invalid_content_mapping: expected object');
-    }
-
-    const topicId = mapping.topicId;
-    graph.getTopic(topicId);
-
-    if (mapping.taxonomyVersion !== graph.taxonomyVersion) {
-      throw new Error(`taxonomy_version_mismatch: ${topicId} expected ${graph.taxonomyVersion} got ${mapping.taxonomyVersion}`);
-    }
-
-    if (!allowedContentRoles.has(mapping.role)) {
-      throw new Error(`invalid_content_role: ${mapping.role}`);
-    }
-
-    if (!allowedContentConfidence.has(mapping.confidence)) {
-      throw new Error(`invalid_content_confidence: ${mapping.confidence}`);
-    }
-  }
-
-  return mappings;
-};
-
-const buildContentIndex = (mappings) => {
-  const byTopicId = new Map();
-  for (const mapping of mappings) {
-    const rows = byTopicId.get(mapping.topicId) || [];
-    rows.push(mapping);
-    byTopicId.set(mapping.topicId, rows);
-  }
-  return byTopicId;
-};
-
-const isServableRemediationContent = (mapping) => (
-    isReviewedTeachingContent(mapping) || (
-        mapping.role === 'reviews' &&
-        (mapping.confidence === 'reviewed' || mapping.confidence === 'verified')
-    )
-);
-
-const estimateMinutes = (contentRows, readiness) => {
-  if (!contentRows.length) {
-    return readiness.readyToLearn ? 18 : 24;
-  }
-
-  const availableMinutes = contentRows
-    .map((row) => safeNumber(row.estimatedMinutes, null))
-    .filter((value) => value !== null);
-
-  if (!availableMinutes.length) {
-    return readiness.readyToLearn ? 15 : 20;
-  }
-
-  return Math.max(5, Math.round(availableMinutes.reduce((sum, value) => sum + value, 0) / availableMinutes.length));
-};
 
 const buildReason = ({goal, readiness, directUnlocks, twoHopUnlocks, reviewedContentCount, includeReview}) => {
   const parts = [];
@@ -559,11 +296,6 @@ export const buildRemediationPlan = (graph, request = {}) => {
             : `Repair ${steps.length} hard prerequisite${steps.length === 1 ? '' : 's'} before teaching ${targetTopicId}.`,
     };
 };
-
-const isAssessableDiagnosticContent = (mapping) => (
-    mapping.role === 'assesses' &&
-    (mapping.confidence === 'reviewed' || mapping.confidence === 'verified')
-);
 
 const diagnosticStepExplanation = (gap) => {
   const evidenceLabel = gap.status === 'unseen'

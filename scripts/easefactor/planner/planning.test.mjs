@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {buildRemediationPlan, deriveMasteryState, loadTaxonomyRelease, makeGraphStore, recommendNextBestTopics, validateContentMappings} from '../../easefactor-reference.mjs';
+import {buildRemediationPlan, deriveMasteryState, loadTaxonomyRelease, makeGraphStore, recommendNextBestTopics} from '../../easefactor-reference.mjs';
+import {validateContentMappings} from '../content/content-mappings.mjs';
 
 test('buildRemediationPlan converts blocked hard prerequisites into ordered repair steps', () => {
     const graph = makeGraphStore(loadTaxonomyRelease());

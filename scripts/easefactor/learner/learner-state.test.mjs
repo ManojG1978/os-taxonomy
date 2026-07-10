@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {checkReadiness, deriveMasteryState, findLearningGaps, loadTaxonomyRelease, makeGraphStore} from '../../easefactor-reference.mjs';
+import {loadTaxonomyRelease} from '../release/load-release.mjs';
+import {makeGraphStore} from '../graph/graph-store.mjs';
+import {deriveMasteryState} from './mastery.mjs';
+import {checkReadiness} from './readiness.mjs';
+import {findLearningGaps} from './learning-gaps.mjs';
 
 test('deriveMasteryState classifies secure and developing evidence and keeps latest observedAt', () => {
   const events = [
