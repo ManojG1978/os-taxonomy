@@ -29,6 +29,9 @@ pnpm-debug.log*
 # Superpowers scratch state
 .superpowers/sdd/
 
+# Isolated local feature worktrees
+.worktrees/
+
 # Environment files
 .env
 .env.*
