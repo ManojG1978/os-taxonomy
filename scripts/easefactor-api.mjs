@@ -3,6 +3,7 @@ import {fileURLToPath} from 'node:url';
 
 import {
     buildDiagnosticPlan,
+    buildParentCompanionJourney,
     buildRemediationPlan,
     checkReadiness,
     deriveMasteryState,
@@ -262,6 +263,23 @@ const handleKnownGraphError = (res, error) => {
     return false;
 };
 
+const parentJourneyErrorStatus = {
+    unsupported_parent_journey_context: 400,
+    invalid_consent_boundary: 400,
+    synthetic_evidence_required: 400,
+    private_data_not_allowed: 400,
+    invalid_parent_journey_evidence: 400,
+    invalid_reviewed_activity: 500,
+};
+
+const handleParentJourneyError = (res, error, taxonomyVersion) => {
+    if (handleKnownGraphError(res, error)) return true;
+    const statusCode = parentJourneyErrorStatus[error?.code];
+    if (!statusCode) return false;
+    sendError(res, statusCode, error.code, error.message, {taxonomyVersion});
+    return true;
+};
+
 const readSyntheticMasteryRequest = async (req, res) => {
     try {
         return await readJsonBody(req);
@@ -444,6 +462,19 @@ const routeGet = (res, pathParts, searchParams, {release, graph}) => {
 };
 
 const routePost = async (req, res, pathParts, {release, graph}) => {
+    if (pathParts.length === 3 && pathParts.join('/') === 'companion/v1/parent-journey') {
+        const request = await readSyntheticMasteryRequest(req, res);
+        if (request === null) return;
+
+        try {
+            sendJson(res, 200, buildParentCompanionJourney(graph, request));
+        } catch (error) {
+            if (handleParentJourneyError(res, error, release.taxonomyVersion)) return;
+            sendError(res, 400, 'invalid_parent_journey_request', error.message, {taxonomyVersion: release.taxonomyVersion});
+        }
+        return;
+    }
+
     if (pathParts.length === 3 && pathParts.join('/') === 'learners/v1/mastery-summary') {
         const request = await readSyntheticMasteryRequest(req, res);
         if (request === null) return;

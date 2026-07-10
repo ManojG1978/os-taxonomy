@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {createEaseFactorApiServer} from './easefactor-api.mjs';
+import {makeParentJourneyRequest} from './easefactor-parent-journey-fixture.test-helper.mjs';
 
 const withServer = async (run) => {
     const server = createEaseFactorApiServer();
@@ -25,6 +26,57 @@ const getJson = async (baseUrl, path) => {
         body: await response.json(),
     };
 };
+
+test('POST /companion/v1/parent-journey returns the deterministic parent journey', async () => {
+    await withServer(async (baseUrl) => {
+        const request = makeParentJourneyRequest();
+        const firstResponse = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(request)});
+        const secondResponse = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(request)});
+        const first = await firstResponse.json();
+        const second = await secondResponse.json();
+        assert.equal(firstResponse.status, 200);
+        assert.deepEqual(first, second);
+        assert.equal(first.foundationalGap.topicId, 'mt_Kr3IyA6m-O');
+        assert.equal(first.activity.review.status, 'reviewed');
+        assert.equal(first.recheck.status, 'improved');
+        assert.equal(first.parentOutcome.status, 'passed');
+        assert.equal(first.privacy.persistence, 'none');
+    });
+});
+
+test('POST parent journey rejects unsupported, non-consented, non-synthetic, and private requests', async () => {
+    await withServer(async (baseUrl) => {
+        const cases = [
+            {patch: {context: {...makeParentJourneyRequest().context, language: 'hi-IN'}}, code: 'unsupported_parent_journey_context'},
+            {patch: {consent: {...makeParentJourneyRequest().consent, scope: 'persistent'}}, code: 'invalid_consent_boundary'},
+            {patch: {evidenceMode: 'production'}, code: 'synthetic_evidence_required'},
+            {patch: {learnerId: 'child-123'}, code: 'private_data_not_allowed'},
+            {patch: {storage: true}, code: 'private_data_not_allowed'},
+        ];
+        for (const {patch, code} of cases) {
+            const response = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(makeParentJourneyRequest(patch))});
+            const body = await response.json();
+            assert.equal(response.status, 400, code);
+            assert.equal(body.error.code, code);
+        }
+    });
+});
+
+test('POST parent journey returns unknown topic, malformed JSON, and body-size errors', async () => {
+    await withServer(async (baseUrl) => {
+        const unknown = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(makeParentJourneyRequest({diagnosticEvents: [{topicId: 'mt_missing', result: 'partial'}]}))});
+        assert.equal(unknown.status, 404);
+        assert.equal((await unknown.json()).error.code, 'unknown_topic_id');
+
+        const malformed = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: '{"context":'});
+        assert.equal(malformed.status, 400);
+        assert.equal((await malformed.json()).error.code, 'invalid_json');
+
+        const oversized = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({padding: 'x'.repeat((1024 * 1024) + 1)})});
+        assert.equal(oversized.status, 413);
+        assert.equal((await oversized.json()).error.code, 'request_body_too_large');
+    });
+});
 
 test('GET /taxonomy/v1/releases/current returns the current release envelope', async () => {
     await withServer(async (baseUrl) => {
