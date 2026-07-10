@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {loadTaxonomyRelease, makeGraphStore} from '../../easefactor-reference.mjs';
+import {loadTaxonomyRelease} from '../release/load-release.mjs';
+import {makeGraphStore} from './graph-store.mjs';
 
 test('builds a graph store with prerequisite and unlock traversal', () => {
   const graph = makeGraphStore(loadTaxonomyRelease());

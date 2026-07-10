@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
-import {loadTaxonomyRelease} from '../../easefactor-reference.mjs';
+import {loadTaxonomyRelease} from './load-release.mjs';
 import {setManifestCountAndGetFixture} from '../reference-fixtures.test-helper.mjs';
 
 test('imports a full release and verifies manifest provenance', () => {
