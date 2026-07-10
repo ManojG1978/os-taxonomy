@@ -49,6 +49,12 @@ All data lives in [`data/`](data/) as UTF-8 JSON. See [`schema/`](schema/) for J
 For implementation notes, data model details, curriculum coverage, validation
 workflow, and licensing guidance, see [`docs/`](docs/).
 
+- [`docs/knowledge-graph-in-education.md`](docs/knowledge-graph-in-education.md):
+  a reader-facing report on how parents, educators, tutors, and students can
+  use a learning knowledge graph.
+- [`docs/easefactor-product-roadmap.md`](docs/easefactor-product-roadmap.md):
+  the canonical EaseFactor capability-status and product-sequencing roadmap.
+
 ### A topic
 
 ```json

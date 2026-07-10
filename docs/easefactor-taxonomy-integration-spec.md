@@ -1,5 +1,10 @@
 # EaseFactor Taxonomy Integration Spec
 
+> **Document role:** This file defines stable product philosophy, architecture,
+> API shape, and integration boundaries. For current capability status,
+> ownership, and implementation sequencing, see the
+> [EaseFactor product roadmap](easefactor-product-roadmap.md).
+
 This document describes how an application like EaseFactor should use the
 Marble Skill Taxonomy as a product capability. It is written from the
 perspective of a product team integrating the taxonomy into an adaptive
@@ -828,90 +833,14 @@ trace:
 - alignment confidence,
 - content mapping confidence.
 
-## Implementation Phases
+## Product Roadmap
 
-### Phase 1: Internal graph service
+Implementation status and sequencing change more frequently than this
+architecture. The canonical phase plan, India parent-first priorities, and
+future student and teacher reuse are maintained in the
+[EaseFactor product roadmap](easefactor-product-roadmap.md).
 
-Build:
-
-- taxonomy importer,
-- read-only taxonomy API,
-- prerequisite and unlock traversal,
-- curriculum filtering,
-- validation during import,
-- simple admin or developer inspection endpoint.
-
-Success criteria:
-
-- current v1 dataset imports cleanly;
-- topic, prerequisite, unlock, and curriculum filter APIs work;
-- all responses include `taxonomyVersion`;
-- codes-only boundaries are preserved.
-
-### Phase 2: Learner mastery foundation
-
-Build:
-
-- mastery events,
-- derived mastery state,
-- readiness check,
-- gap detection,
-- basic diagnostic onboarding.
-
-Success criteria:
-
-- product can explain why a learner is ready or blocked for a topic;
-- raw evidence is preserved separately from derived state;
-- unknown prerequisite evidence is handled conservatively.
-
-### Phase 3: Content mapping
-
-Build:
-
-- content-topic mapping model,
-- review workflow for mappings,
-- content lookup by topic,
-- content gap reporting.
-
-Success criteria:
-
-- every recommended topic can be checked against available content;
-- mappings distinguish teaches, practices, assesses, reviews, and extends;
-- unreviewed machine mappings are visible as lower-confidence.
-
-### Phase 4: Planner and recommendation engine
-
-Build:
-
-- next-best topic endpoint,
-- remediation endpoint,
-- learning path endpoint,
-- explanation generator,
-- decision logs.
-
-Success criteria:
-
-- recommendations are reproducible;
-- explanations cite readiness, prerequisites, curriculum fit, and content;
-- teacher overrides are supported without erasing graph risk.
-
-### Phase 5: Product surfaces
-
-Build:
-
-- learner dashboard,
-- parent explanation cards,
-- teacher coverage dashboard,
-- diagnostic flow,
-- authoring and content QA tools.
-
-Success criteria:
-
-- graph complexity is hidden behind clear user-facing decisions;
-- parent and teacher surfaces explain "why this next";
-- curriculum coverage separates aligned topics from prerequisite support.
-
-## What Must Be In Place
+## Product Integration Prerequisites
 
 To make the vision work, EaseFactor needs the following foundations.
 
@@ -972,37 +901,10 @@ This approach should not:
 - display upstream full text for codes-only sources without rights clearance;
 - rely on LLM recommendations without inspectable rule-based explanations.
 
-## Open Product Decisions
+## Product Decisions And Sequencing
 
-The following decisions belong to the EaseFactor product team before
-implementation:
-
-- Which first curriculum, class, and subject should be the pilot?
-- Should the first learner experience be diagnostic onboarding, next-best
-  lesson, remediation, or teacher coverage?
-- What mastery statuses should appear to parents and teachers?
-- Who can override mastery state?
-- What content inventory exists today and how reliably can it be mapped?
-- How much taxonomy detail should be visible to teachers versus hidden behind
-  explanations?
-- How long should older taxonomy versions be retained for learner history?
-
-## Recommended First Build
-
-The best first build is not a full adaptive platform. It is a narrow,
-trust-building slice:
-
-```text
-Class 6 Mathematics Number System
-  -> import taxonomy v1
-  -> filter curriculum-aligned topics
-  -> compute prerequisite closure
-  -> record diagnostic evidence
-  -> identify gaps
-  -> recommend the next topic with explanation
-```
-
-This slice proves the hardest product idea: EaseFactor can explain what a
-learner should do next using a real curriculum graph, real evidence, and a
-clear prerequisite trail.
-
+The first audience, curriculum slice, parent outcome, capability status, and
+next implementation tranche are maintained in the
+[EaseFactor product roadmap](easefactor-product-roadmap.md). Keeping those
+decisions in one canonical roadmap prevents this stable integration reference
+from becoming a second backlog.

@@ -104,9 +104,9 @@ Included:
 - 1,590 micro-topics.
 - 3,221 prerequisite dependencies.
 - 8 curricula.
-- 3,301 standards or standard codes.
+- 3,311 standards or standard codes.
 - 1,859 topic-standard links.
-- 76 curriculum alignment rows.
+- 94 curriculum alignment rows.
 - 183 domain clusters.
 - JSON Schemas and validator.
 

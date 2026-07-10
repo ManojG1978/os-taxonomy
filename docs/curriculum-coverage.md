@@ -3,6 +3,11 @@
 The release covers 1,590 micro-topics across 8 subjects, aligned to 8 curriculum
 sources containing 3,311 standards or standard codes.
 
+This document is the canonical documentation source for current curriculum,
+source-key, and alignment counts. Product roadmaps, integration guides, and
+dated planning records should link here instead of copying volatile coverage
+snapshots.
+
 ## Subject Coverage
 
 | Subject                       | Topics |

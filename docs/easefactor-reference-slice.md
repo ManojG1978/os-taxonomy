@@ -12,6 +12,11 @@ release data.
 module. It uses Node built-ins only and is intended for developer inspection,
 integration spikes, and contract testing. It is not a production app backend.
 
+> **Document role:** This file documents behavior that is runnable in this
+> repository with synthetic request data. It is not the product backlog. See
+> the [EaseFactor product roadmap](easefactor-product-roadmap.md) for current
+> status, ownership, and next steps.
+
 ## What It Is
 
 - A dependency-free runtime example that demonstrates how a product can use the
