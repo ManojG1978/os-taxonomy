@@ -79,9 +79,9 @@ overstated, and release, reference, and documentation checks pass.
 | Repair stale HTTP API and visualizer assertions against the current release | `available` | Marble reference layer |
 | Publish the evergreen parent-and-educator knowledge-graph report | `available` | Marble taxonomy |
 | Create and verify this canonical status-and-ownership roadmap | `available` | Marble taxonomy |
-| Reconcile current counts, links, and authority notes across public documentation | `planned` | Marble taxonomy |
-| Mark dated planning records as completed or historical snapshots | `planned` | Marble taxonomy |
-| Run the complete documentation, root validator, EaseFactor reference/API, and visualizer release gate | `planned` | Marble taxonomy and Marble reference layer |
+| Reconcile current counts, links, and authority notes across public documentation | `available` | Marble taxonomy |
+| Mark dated planning records as completed or historical snapshots | `available` | Marble taxonomy |
+| Run the complete documentation, root validator, EaseFactor reference/API, and visualizer release gate | `available` | Marble taxonomy and Marble reference layer |
 
 ## Phase 1: Parent Companion Vertical Slice
 

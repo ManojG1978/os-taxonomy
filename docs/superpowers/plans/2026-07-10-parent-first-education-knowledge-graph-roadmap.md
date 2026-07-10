@@ -716,10 +716,30 @@ function markdownFiles(root) {
   });
 }
 
+function withoutFencedCode(text) {
+  const lines = text.split(/\r?\n/);
+  let fence = null;
+  return lines.map((line) => {
+    const match = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (!fence && match) {
+      fence = {character: match[1][0], length: match[1].length};
+      return '';
+    }
+    if (fence) {
+      const closing = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+      if (closing && closing[1][0] === fence.character && closing[1].length >= fence.length) {
+        fence = null;
+      }
+      return '';
+    }
+    return line;
+  }).join('\n');
+}
+
 const files = ['README.md', ...markdownFiles('docs')];
 const missing = [];
 for (const file of files) {
-  const text = fs.readFileSync(file, 'utf8');
+  const text = withoutFencedCode(fs.readFileSync(file, 'utf8'));
   for (const match of text.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
     const raw = match[1].trim().replace(/^<|>$/g, '');
     if (/^(https?:|mailto:|#)/i.test(raw)) continue;
@@ -738,6 +758,11 @@ console.log(`valid — ${files.length} Markdown files have resolvable local link
 ```
 
 Expected: exit 0 with a `valid` summary. Fix only broken links introduced or exposed by this documentation consolidation.
+
+The checker intentionally removes fenced code blocks before matching links.
+The original version treated Markdown-like examples inside fenced code as real
+links, producing false positives for example paths while checking actual prose
+links correctly.
 
 - [ ] **Step 2: Sweep current documents for stale India counts**
 
