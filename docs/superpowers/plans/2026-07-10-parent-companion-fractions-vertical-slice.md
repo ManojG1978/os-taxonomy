@@ -442,11 +442,11 @@ test('POST parent journey rejects unsupported, non-consented, non-synthetic, and
   });
 });
 
-test('POST parent journey returns unknown topic, malformed JSON, and body-size errors', async () => {
+test('POST parent journey normalizes unknown evidence topics and returns malformed JSON and body-size errors', async () => {
   await withServer(async (baseUrl) => {
-    const unknown = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(makeParentJourneyRequest({diagnosticEvents: [{topicId: 'mt_missing', result: 'partial'}]}))});
-    assert.equal(unknown.status, 404);
-    assert.equal((await unknown.json()).error.code, 'unknown_topic_id');
+    const unknown = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(makeParentJourneyRequest({diagnosticEvents: [{topicId: 'mt_missing', result: 'partial', score: 0.42, observedAt: '2026-07-10T09:05:00.000Z'}]}))});
+    assert.equal(unknown.status, 400);
+    assert.equal((await unknown.json()).error.code, 'invalid_parent_journey_evidence');
 
     const malformed = await fetch(`${baseUrl}/companion/v1/parent-journey`, {method: 'POST', headers: {'content-type': 'application/json'}, body: '{"context":'});
     assert.equal(malformed.status, 400);

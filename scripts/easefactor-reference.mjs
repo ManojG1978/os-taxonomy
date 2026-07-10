@@ -752,7 +752,7 @@ export const validateReviewedHouseholdActivity = (graph, activity) => {
     if (!activity || typeof activity !== 'object' || Array.isArray(activity)) throw new Error('Household activity must be an object.');
     if (!nonEmptyString(activity.activityId) || !Number.isInteger(activity.version) || activity.version <= 0) throw new Error('Household activity identity and version are required.');
     if (activity.review?.status !== 'reviewed' || !nonEmptyString(activity.review?.scope)) throw new Error('Household activity review metadata is invalid.');
-    if (!nonEmptyString(activity.title) || !nonEmptyString(activity.purpose)) throw new Error('Household activity title and purpose are required.');
+    if (!nonEmptyString(activity.title) || !nonEmptyString(activity.purpose) || !nonEmptyString(activity.selectionReason)) throw new Error('Household activity title, purpose, and selection reason are required.');
     for (const field of ['materials', 'instructions', 'evidencePrompts', 'accessibilityNotes', 'safetyNotes']) {
       if (!nonEmptyStringArray(activity[field])) throw new Error(`Household activity ${field} must contain reviewed text.`);
     }
@@ -794,6 +794,19 @@ const allowedConsentFields = new Set(['purpose', 'scope', 'observationCapture'])
 const allowedEvidenceFields = new Set(['topicId', 'taxonomyVersion', 'result', 'score', 'observedAt']);
 const allowedOutcomeFields = new Set(['foundationalGapTopicId', 'firstActionId']);
 const allowedParentJourneyEvidenceTopics = new Set(['mt_vKcxX6iNOA', 'mt_Kr3IyA6m-O', 'mt_IfEgu0X449']);
+const isValidExplicitTimezoneTimestamp = (value) => {
+  if (typeof value !== 'string') return false;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-](\d{2}):(\d{2}))$/);
+  if (!match) return false;
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText = '0', , , offsetHourText = '0', offsetMinuteText = '0'] = match;
+  const [year, month, day, hour, minute, second, offsetHour, offsetMinute] = [yearText, monthText, dayText, hourText, minuteText, secondText, offsetHourText, offsetMinuteText].map(Number);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] ?? 0;
+  return day >= 1 && day <= daysInMonth
+    && hour <= 23 && minute <= 59 && second <= 59
+    && offsetHour <= 23 && offsetMinute <= 59
+    && Number.isFinite(Date.parse(value));
+};
 const assertOnlyFields = (value, allowedFields) => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw parentJourneyError('private_data_not_allowed', 'Journey sections must be objects with reviewed fields only.');
   const unexpected = Object.keys(value).find((field) => !allowedFields.has(field));
@@ -807,7 +820,7 @@ const validateEvidenceTopics = (graph, events) => {
     if (!allowedParentJourneyEvidenceTopics.has(event.topicId)) throw parentJourneyError('invalid_parent_journey_evidence', `Evidence topic is outside the reviewed parent journey: ${event.topicId}.`);
     if (!['secure', 'partial', 'review', 'blocked'].includes(event.result)) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence result is invalid.');
     if (typeof event.score !== 'number' || !Number.isFinite(event.score) || event.score < 0 || event.score > 1) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence score must be finite and between zero and one.');
-    if (typeof event.observedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(event.observedAt) || !Number.isFinite(Date.parse(event.observedAt))) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence observedAt must be a valid timestamp.');
+    if (!isValidExplicitTimezoneTimestamp(event.observedAt)) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence observedAt must be a valid timestamp with an explicit timezone.');
     if (event.taxonomyVersion !== undefined && event.taxonomyVersion !== graph.taxonomyVersion) throw parentJourneyError('invalid_parent_journey_evidence', 'Evidence taxonomyVersion does not match the current taxonomy.');
     try {
       graph.getTopic(event.topicId);

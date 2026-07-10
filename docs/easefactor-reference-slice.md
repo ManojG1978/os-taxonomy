@@ -145,7 +145,9 @@ journey result.
 Each submitted evidence event must use one of the three reviewed journey topic
 IDs, a `result` of `secure`, `partial`, `review`, or `blocked`, a finite `score`
 from `0` through `1`, and a valid `observedAt` timestamp. `taxonomyVersion` is
-optional; when present, it must equal the current taxonomy version.
+optional; when present, it must equal the current taxonomy version. Evidence
+timestamps require an explicit timezone ending in `Z` or a numeric `+HH:MM` or
+`-HH:MM` offset; timezone-less date-times are rejected.
 
 Typed errors are:
 

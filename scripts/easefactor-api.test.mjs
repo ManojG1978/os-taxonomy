@@ -90,6 +90,8 @@ test('POST parent journey rejects malformed evidence with the normalized journey
             {...baseEvent, score: 2},
             {...baseEvent, observedAt: undefined},
             {...baseEvent, observedAt: 'invalid'},
+            {...baseEvent, observedAt: '2026-07-10T09:00:00.000'},
+            {...baseEvent, observedAt: '2026-02-30T09:00:00.000Z'},
             {...baseEvent, taxonomyVersion: 'v2'},
             {...baseEvent, topicId: 'mt_missing'},
         ];

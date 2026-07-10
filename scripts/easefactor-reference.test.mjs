@@ -605,6 +605,8 @@ test('reviewed household activity normalizes draft, unknown-topic, and invalid-m
   );
 
   expectInvalid({...valid, title: ''});
+  expectInvalid({...valid, selectionReason: undefined});
+  expectInvalid({...valid, selectionReason: ''});
   expectInvalid({...valid, version: 0});
   expectInvalid({...valid, review: {status: 'reviewed', scope: ''}});
   expectInvalid({...valid, materials: []});
@@ -677,6 +679,8 @@ test('parent journey rejects malformed evidence with one normalized error', () =
     {...baseEvent, score: 1.01},
     {...baseEvent, observedAt: undefined},
     {...baseEvent, observedAt: 'not-a-timestamp'},
+    {...baseEvent, observedAt: '2026-07-10T09:00:00.000'},
+    {...baseEvent, observedAt: '2026-02-30T09:00:00.000Z'},
     {...baseEvent, taxonomyVersion: 'v2'},
     {...baseEvent, topicId: 'mt_missing'},
   ];
@@ -686,6 +690,34 @@ test('parent journey rejects malformed evidence with one normalized error', () =
       (error) => error.code === 'invalid_parent_journey_evidence',
     );
   }
+});
+
+test('parent journey ordering and output are identical across process timezones', () => {
+  const referenceUrl = new URL('./easefactor-reference.mjs', import.meta.url).href;
+  const fixtureUrl = new URL('./easefactor-parent-journey-fixture.test-helper.mjs', import.meta.url).href;
+  const script = `
+    import {buildParentCompanionJourney, deriveMasteryState, loadTaxonomyRelease, makeGraphStore} from ${JSON.stringify(referenceUrl)};
+    import {makeParentJourneyRequest} from ${JSON.stringify(fixtureUrl)};
+    const diagnosticEvents = [
+      {topicId: 'mt_vKcxX6iNOA', result: 'secure', score: 0.92, observedAt: '2026-07-10T09:00:00.000Z'},
+      {topicId: 'mt_Kr3IyA6m-O', result: 'partial', score: 0.42, observedAt: '2026-07-10T09:15:00.000+05:30'},
+      {topicId: 'mt_Kr3IyA6m-O', result: 'secure', score: 0.86, observedAt: '2026-07-10T04:00:00.000Z'},
+    ];
+    const graph = makeGraphStore(loadTaxonomyRelease());
+    const journey = buildParentCompanionJourney(graph, makeParentJourneyRequest({diagnosticEvents}));
+    const evidenceOrder = deriveMasteryState(diagnosticEvents).get('mt_Kr3IyA6m-O').evidenceTrail.map((event) => event.observedAt);
+    process.stdout.write(JSON.stringify({journey, evidenceOrder}));
+  `;
+  const runInTimezone = (TZ) => JSON.parse(execFileSync(
+    process.execPath,
+    ['--input-type=module', '--eval', script],
+    {cwd: process.cwd(), encoding: 'utf8', env: {...process.env, TZ}},
+  ));
+
+  const utc = runInTimezone('UTC');
+  const kolkata = runInTimezone('Asia/Kolkata');
+  assert.deepEqual(utc, kolkata);
+  assert.deepEqual(utc.evidenceOrder, ['2026-07-10T09:15:00.000+05:30', '2026-07-10T04:00:00.000Z']);
 });
 
 test('CLI --demo emits a valid recommendation payload', () => {
