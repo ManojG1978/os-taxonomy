@@ -5,6 +5,7 @@ import {loadTaxonomyRelease} from '../release/load-release.mjs';
 import {
   buildCoverage,
   filterAlignments,
+  filterClusters,
   filterCurricula,
   filterStandards,
   filterTopics,
@@ -26,6 +27,19 @@ test('releaseEnvelope presents the current release contract', () => {
       sourceFileHashes: release.sourceFileHashes,
     },
   });
+});
+
+test('cluster presentation filters by subject, domain, and age', () => {
+  const clusters = filterClusters(release, {
+    subject: 'English',
+    domain: 'Grammar & Punctuation',
+    age: 7,
+  });
+
+  assert.equal(clusters.length, 1);
+  assert.equal(clusters[0].subject, 'English');
+  assert.equal(clusters[0].domain, 'Grammar & Punctuation');
+  assert.equal(clusters[0].ageRangeStart, 7);
 });
 
 test('topic presentation filters the real release by subject and age', () => {

@@ -6,6 +6,13 @@ import {tmpdir} from 'node:os';
 
 import {analyzeArchitecture, findCycles} from './architecture-rules.mjs';
 
+const functionDeclarations = (source) => [
+  ...[...source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g)].map((match) => match[1]),
+  ...[...source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s+)?[A-Za-z_$][\w$]*\s*=>/g)].map((match) => match[1]),
+  ...[...source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s+)?function(?:\s+\w+)?\s*\(/g)].map((match) => match[1]),
+  ...[...source.matchAll(/^\s*(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\(/gm)].map((match) => match[1]),
+];
+
 function makeFixture(files) {
   const rootDir = mkdtempSync(join(tmpdir(), 'easefactor-architecture-'));
 
@@ -46,6 +53,29 @@ test('analyzeArchitecture reports domain-to-API imports and module cycles', () =
     assert.deepEqual(result.graph.get('domain/topic.mjs'), ['api/server.mjs']);
     assert.deepEqual(result.violations, [
       'cycle: a.mjs -> b.mjs -> c.mjs -> a.mjs',
+      'domain-to-api: domain/topic.mjs -> api/server.mjs',
+    ]);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('analyzeArchitecture treats named and star re-exports as dependency edges', () => {
+  const fixture = makeFixture({
+    'domain/topic.mjs': "export {server} from '../api/server.mjs';\n",
+    'api/server.mjs': 'export const server = {};\n',
+    'a.mjs': "export {b} from './b.mjs';\n",
+    'b.mjs': "export * from './a.mjs';\n",
+  });
+
+  try {
+    const result = analyzeArchitecture(fixture.rootDir);
+
+    assert.deepEqual(result.graph.get('domain/topic.mjs'), ['api/server.mjs']);
+    assert.deepEqual(result.graph.get('a.mjs'), ['b.mjs']);
+    assert.deepEqual(result.graph.get('b.mjs'), ['a.mjs']);
+    assert.deepEqual(result.violations, [
+      'cycle: a.mjs -> b.mjs -> a.mjs',
       'domain-to-api: domain/topic.mjs -> api/server.mjs',
     ]);
   } finally {
@@ -143,14 +173,24 @@ test('live EaseFactor production modules satisfy architecture rules', () => {
 });
 
 test('composition roots contain composition only', () => {
-  const declarations = (relativePath) => {
-    const source = readFileSync(resolve(relativePath), 'utf8');
-    return [
-      ...[...source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g)].map((match) => match[1]),
-      ...[...source.matchAll(/(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\(/g)].map((match) => match[1]),
-    ];
-  };
+  const declarations = (relativePath) => functionDeclarations(readFileSync(resolve(relativePath), 'utf8'));
 
   assert.deepEqual(declarations('scripts/easefactor-api.mjs'), ['createEaseFactorApiServer']);
   assert.deepEqual(declarations('scripts/easefactor-reference.mjs'), []);
+});
+
+test('composition-root declaration guard catches unparenthesized arrows and function expressions', () => {
+  const source = [
+    'const singleParameter = value => value;',
+    'const asyncSingleParameter = async value => value;',
+    'const expression = function (value) { return value; };',
+    'const namedExpression = function inner(value) { return value; };',
+  ].join('\n');
+
+  assert.deepEqual(functionDeclarations(source), [
+    'singleParameter',
+    'asyncSingleParameter',
+    'expression',
+    'namedExpression',
+  ]);
 });

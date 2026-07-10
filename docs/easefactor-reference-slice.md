@@ -8,9 +8,11 @@ artifacts.
 example** for wiring a small EaseFactor-style integration slice against this
 release data.
 
-`scripts/easefactor-api.mjs` is a thin **local HTTP wrapper** over that reference
-module. It uses Node built-ins only and is intended for developer inspection,
-integration spikes, and contract testing. It is not a production app backend.
+`scripts/easefactor-reference.mjs` and `scripts/easefactor-api.mjs` are sibling
+composition roots over the same extracted reference-slice domain modules. The
+API root is a thin **local HTTP wrapper** that uses Node built-ins only and is
+intended for developer inspection, integration spikes, and contract testing.
+It is not a production app backend.
 
 > **Document role:** This file documents behavior that is runnable in this
 > repository with synthetic request data. It is not the product backlog. See

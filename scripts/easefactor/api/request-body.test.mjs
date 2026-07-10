@@ -41,6 +41,15 @@ test('readJsonBody rejects a request larger than 1 MB', async () => {
   );
 });
 
+test('readJsonBody accepts exactly 1 MB of valid JSON', async () => {
+  const body = JSON.stringify({value: 'x'.repeat(1048564)});
+
+  assert.equal(Buffer.byteLength(body), 1048576);
+  assert.deepEqual(await readJsonBody(requestFrom(body)), {
+    value: 'x'.repeat(1048564),
+  });
+});
+
 test('readJsonRequest converts body errors into stable HTTP envelopes', async () => {
   const malformedRes = responseDouble();
   const oversizedRes = responseDouble();

@@ -176,8 +176,16 @@ function readImportDeclaration(source, start) {
   return null;
 }
 
-function staticImports(source) {
-  const imports = [];
+function readExportDeclaration(source, start) {
+  const index = skipTrivia(source, start);
+  if (source[index] !== '{' && source[index] !== '*') {
+    return null;
+  }
+  return readImportDeclaration(source, index);
+}
+
+function staticModuleReferences(source) {
+  const references = [];
   let index = 0;
 
   while (index < source.length) {
@@ -193,14 +201,17 @@ function staticImports(source) {
       index = identifier.end;
       if (identifier.value === 'import') {
         const specifier = readImportDeclaration(source, index);
-        if (specifier !== null) imports.push(specifier);
+        if (specifier !== null) references.push(specifier);
+      } else if (identifier.value === 'export') {
+        const specifier = readExportDeclaration(source, index);
+        if (specifier !== null) references.push(specifier);
       }
     } else {
       index += 1;
     }
   }
 
-  return imports;
+  return references;
 }
 
 function resolveImport(sourceFile, specifier) {
@@ -252,7 +263,7 @@ export function analyzeArchitecture(rootDir) {
   for (const sourceFile of moduleFiles) {
     const sourceName = normalizePath(relative(absoluteRoot, sourceFile));
     const source = readFileSync(sourceFile, 'utf8');
-    const imports = staticImports(source);
+    const imports = staticModuleReferences(source);
 
     if (imports.includes('node:http') && !rules.nodeHttpAllowed.has(sourceName)) {
       violations.push(`node:http: ${sourceName}`);
