@@ -74,18 +74,14 @@ or private data to be added to this repository.
 the public documentation has one roadmap authority, current coverage is not
 overstated, and release, reference, and documentation checks pass.
 
-Implementation-plan work:
-
-- [x] Repair stale HTTP API and visualizer assertions against the current
-  release. Verified in the preceding implementation tranche.
-- [x] Publish the evergreen parent-and-educator knowledge-graph report.
-  Verified in the preceding implementation tranche.
-- [x] Create and verify this canonical status-and-ownership roadmap.
-- [ ] Reconcile current counts, links, and authority notes across public
-  documentation.
-- [ ] Mark dated planning records as completed or historical snapshots.
-- [ ] Run the complete documentation, root validator, EaseFactor reference/API,
-  and visualizer release gate.
+| Implementation-plan work | Status | Owner |
+|---|---|---|
+| Repair stale HTTP API and visualizer assertions against the current release | `available` | Marble reference layer |
+| Publish the evergreen parent-and-educator knowledge-graph report | `available` | Marble taxonomy |
+| Create and verify this canonical status-and-ownership roadmap | `available` | Marble taxonomy |
+| Reconcile current counts, links, and authority notes across public documentation | `planned` | Marble taxonomy |
+| Mark dated planning records as completed or historical snapshots | `planned` | Marble taxonomy |
+| Run the complete documentation, root validator, EaseFactor reference/API, and visualizer release gate | `planned` | Marble taxonomy and Marble reference layer |
 
 ## Phase 1: Parent Companion Vertical Slice
 
@@ -132,6 +128,8 @@ preserving consent, privacy, and uncertainty.
 EaseFactor for reviewed content inventory and delivery. **Acceptance outcome:**
 coverage expands through bounded, reviewed slices, with visible gaps and useful
 content alternatives rather than broad unsupported claims.
+
+The India mapping is a reviewed pilot, not full-board coverage.
 
 - Complete the remaining Class 6 algebraic-patterning cleanup.
 - Review the full Class 6 Mathematics mapping before broad coverage claims.
