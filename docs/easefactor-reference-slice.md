@@ -68,6 +68,98 @@ with `PORT=3090 npm run serve:easefactor-api` or
 
 ## Local API
 
+### Parent companion demo endpoint
+
+```http
+POST /companion/v1/parent-journey
+```
+
+This fixed reference journey covers reviewed CBSE/NCERT Class 6 Mathematics
+fraction comparison. It accepts only synthetic diagnostic and recheck evidence,
+requires request-only diagnostic-guidance consent, rejects private identifiers
+and persistence requests, and stores nothing.
+
+```text
+plain-language concern -> short diagnostic -> foundational gap
+  -> explanation -> remediation -> reviewed household activity
+  -> separate recheck -> parent comprehension/action outcome
+```
+
+The only supported context is:
+
+```json
+{
+  "board": "CBSE",
+  "curriculum": "ncert-class6-math-2026-27",
+  "class": 6,
+  "subject": "Mathematics",
+  "language": "en-IN",
+  "topicFamily": "fractions-comparison"
+}
+```
+
+The concern ID is `fraction-size-comparison`. The request must set
+`evidenceMode` to `synthetic` and assert all three fixed consent values:
+`purpose: "diagnostic-guidance"`, `scope: "request-only"`, and
+`observationCapture: "request-only"`.
+
+A compact successful request is:
+
+```json
+{
+  "context": {
+    "board": "CBSE",
+    "curriculum": "ncert-class6-math-2026-27",
+    "class": 6,
+    "subject": "Mathematics",
+    "language": "en-IN",
+    "topicFamily": "fractions-comparison"
+  },
+  "concernId": "fraction-size-comparison",
+  "evidenceMode": "synthetic",
+  "consent": {
+    "purpose": "diagnostic-guidance",
+    "scope": "request-only",
+    "observationCapture": "request-only"
+  },
+  "diagnosticEvents": [
+    {"topicId": "mt_vKcxX6iNOA", "result": "secure", "score": 0.92},
+    {"topicId": "mt_Kr3IyA6m-O", "result": "partial", "score": 0.42}
+  ],
+  "recheckEvents": [
+    {"topicId": "mt_Kr3IyA6m-O", "result": "secure", "score": 0.86}
+  ],
+  "parentOutcomeResponses": {
+    "foundationalGapTopicId": "mt_Kr3IyA6m-O",
+    "firstActionId": "locate-benchmark-fractions"
+  }
+}
+```
+
+The foundational-gap status is `identified` or `not-enough-information`.
+Recheck status is `improved`, `needs-more-evidence`, or `not-submitted`.
+Parent outcome status is `passed`, `not-passed`, or `not-measured`; `passed`
+requires both the foundational-gap and first-action answers to match the
+journey result.
+
+Typed errors are:
+
+| HTTP status | Error code | Meaning |
+|---:|---|---|
+| 400 | `invalid_json` | The body is malformed JSON. |
+| 400 | `unsupported_parent_journey_context` | A fixed context value or the concern is unsupported. |
+| 400 | `invalid_consent_boundary` | The consent assertion is missing or differs from the request-only contract. |
+| 400 | `synthetic_evidence_required` | `evidenceMode` is not `synthetic`. |
+| 400 | `private_data_not_allowed` | The request contains an unsupported, private, or persistence field. |
+| 400 | `invalid_parent_journey_evidence` | Evidence is malformed or outside the three reviewed journey topics. |
+| 404 | `unknown_topic_id` | Evidence references a topic absent from the taxonomy. |
+| 413 | `request_body_too_large` | The request exceeds the shared one-megabyte body limit. |
+| 500 | `invalid_reviewed_activity` | The built-in activity fails its reviewed mapping contract. |
+
+These request fields only assert the boundary needed to run the reference
+contract. This endpoint is not authentication, consent administration, storage,
+a production UI, or generalized curriculum routing.
+
 Read-only taxonomy endpoints:
 
 ```http

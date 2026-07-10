@@ -30,7 +30,8 @@ runnable examples, and curriculum coverage owns current dataset counts.
 | Content-mapping validation | `reference-only` | Shared learning intelligence | No content marketplace |
 | Persistent learner evidence and mastery | `product-owned` | EaseFactor | Private, consented product storage |
 | Reviewed learning-content inventory | `product-owned` | EaseFactor | Content rights and QA required |
-| Parent companion experience | `planned` | EaseFactor | First product audience |
+| Synthetic parent companion journey contract | `reference-only` | Shared learning intelligence | Fixed Class 6 Fractions slice; request-local synthetic evidence |
+| Production parent companion experience | `planned` | EaseFactor | Product UI, private storage, consent operation, and broader routing remain product-owned |
 | Hindi and additional-language presentation | `planned` | EaseFactor | Shared terminology model |
 | Independent-student experience | `planned` | EaseFactor | Reuses shared services |
 | Teacher and school experience | `planned` | EaseFactor | Reuses shared services |
@@ -85,23 +86,30 @@ overstated, and release, reference, and documentation checks pass.
 
 ## Phase 1: Parent Companion Vertical Slice
 
-**Status:** `planned`. **Owner:** EaseFactor, using shared learning
-intelligence. **Acceptance outcome:** one production-oriented, explainable
-parent journey works end to end for one reviewed Class 6 Mathematics topic
-family.
+**Status:** `planned` for the production experience. **Owner:** EaseFactor,
+using shared learning intelligence. **Acceptance outcome:** one
+production-oriented, explainable parent journey works end to end for one
+reviewed Class 6 Mathematics topic family.
 
-The vertical slice includes:
+The bounded repository contract demonstrates part of the journey with
+request-local synthetic evidence; it does not complete the production phase.
 
-- parent setup for board, class, subject, language, and concern;
-- a plain-language statement of the concern;
-- a short prerequisite-aware diagnostic;
-- an evidence-backed mastery summary;
-- a root-cause and readiness explanation;
-- a small, ordered remediation plan;
-- one reviewed household activity and the reason it was selected;
-- parent observation capture in product-owned storage;
-- a recheck after practice; and
-- a weekly parent-readable summary.
+| Phase 1 capability | Status | Current boundary |
+|---|---|---|
+| Plain-language concern | `reference-only` | Fixed fraction-size-comparison concern |
+| Short prerequisite-aware diagnostic | `reference-only` | Fixed reviewed topic chain |
+| Evidence-backed foundational gap | `reference-only` | Request-local synthetic evidence |
+| Root-cause and readiness explanation | `reference-only` | Deterministic reference wording |
+| Ordered remediation | `reference-only` | Fixed reviewed Fractions slice |
+| Reviewed household activity | `reference-only` | Built-in, mapping-validated activity |
+| Separate recheck | `reference-only` | Separate synthetic recheck evidence |
+| Parent comprehension/action outcome | `reference-only` | Two-part deterministic outcome contract |
+| Parent observation storage | `planned` | Private product-owned storage |
+| Production consent operation | `planned` | Capture, withdrawal, audit, retention, deletion, and export remain product-owned |
+| Production UI | `planned` | EaseFactor experience work |
+| Authentication and authorization | `planned` | Product accounts, tenant boundaries, and RBAC |
+| Weekly parent-readable summaries | `planned` | Requires product state and presentation |
+| Broader curriculum and concern routing | `planned` | Fixed context only in the reference contract |
 
 ## Phase 2: Make It Useful In Indian Homes
 
