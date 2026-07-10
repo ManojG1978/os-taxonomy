@@ -97,6 +97,47 @@ test('analyzeArchitecture allows taxonomy file access only in the release loader
   }
 });
 
+test('analyzeArchitecture reports direct taxonomy JSON imports outside the release loader', () => {
+  const fixture = makeFixture({
+    'release/load-release.mjs': "import topics from '../../../data/topics.json' with {type: 'json'};\nexport {topics};\n",
+    'domain/topic.mjs': "import topics from '../../../data/topics.json' with {type: 'json'};\nexport {topics};\n",
+  });
+
+  try {
+    assert.deepEqual(analyzeArchitecture(fixture.rootDir).violations, [
+      'taxonomy-file-access: domain/topic.mjs',
+    ]);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('analyzeArchitecture ignores import-shaped text that is not a static import declaration', () => {
+  const fixture = makeFixture({
+    'api/server.mjs': 'export const server = {};\n',
+    'domain/examples.mjs': [
+      "// import '../api/server.mjs';",
+      "/* import '../api/server.mjs'; */",
+      "const doubleQuoted = \"import '../api/server.mjs'\";",
+      "const singleQuoted = 'import \\\"../api/server.mjs\\\"';",
+      "const template = `import '../api/server.mjs'`;",
+      "const dynamic = import('../api/server.mjs');",
+      "const httpExample = \"import 'node:http'\";",
+      'export {doubleQuoted, singleQuoted, template, dynamic, httpExample};',
+      '',
+    ].join('\n'),
+  });
+
+  try {
+    const result = analyzeArchitecture(fixture.rootDir);
+
+    assert.deepEqual(result.graph.get('domain/examples.mjs'), []);
+    assert.deepEqual(result.violations, []);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('live EaseFactor production modules satisfy architecture rules', () => {
   assert.deepEqual(analyzeArchitecture(resolve('scripts/easefactor')).violations, []);
 });

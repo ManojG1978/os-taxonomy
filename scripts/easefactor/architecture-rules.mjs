@@ -38,13 +38,166 @@ function listProductionModules(rootDir) {
   return modules.sort();
 }
 
+function skipComment(source, start) {
+  if (source.startsWith('//', start)) {
+    const lineEnd = source.indexOf('\n', start + 2);
+    return lineEnd === -1 ? source.length : lineEnd + 1;
+  }
+
+  if (source.startsWith('/*', start)) {
+    const commentEnd = source.indexOf('*/', start + 2);
+    return commentEnd === -1 ? source.length : commentEnd + 2;
+  }
+
+  return start;
+}
+
+function skipTrivia(source, start) {
+  let index = start;
+
+  while (index < source.length) {
+    if (/\s/.test(source[index])) {
+      index += 1;
+      continue;
+    }
+
+    const afterComment = skipComment(source, index);
+    if (afterComment !== index) {
+      index = afterComment;
+      continue;
+    }
+
+    break;
+  }
+
+  return index;
+}
+
+function readQuotedString(source, start) {
+  const quote = source[start];
+  let value = '';
+
+  for (let index = start + 1; index < source.length; index += 1) {
+    if (source[index] === '\\') {
+      if (index + 1 < source.length) {
+        value += source[index + 1];
+        index += 1;
+      }
+    } else if (source[index] === quote) {
+      return {end: index + 1, value};
+    } else {
+      value += source[index];
+    }
+  }
+
+  return {end: source.length, value};
+}
+
+function skipTemplateExpression(source, start) {
+  let depth = 1;
+  let index = start;
+
+  while (index < source.length && depth > 0) {
+    const afterComment = skipComment(source, index);
+    if (afterComment !== index) {
+      index = afterComment;
+    } else if (source[index] === "'" || source[index] === '"') {
+      index = readQuotedString(source, index).end;
+    } else if (source[index] === '`') {
+      index = skipTemplateLiteral(source, index);
+    } else {
+      if (source[index] === '{') depth += 1;
+      if (source[index] === '}') depth -= 1;
+      index += 1;
+    }
+  }
+
+  return index;
+}
+
+function skipTemplateLiteral(source, start) {
+  let index = start + 1;
+
+  while (index < source.length) {
+    if (source[index] === '\\') {
+      index += 2;
+    } else if (source[index] === '`') {
+      return index + 1;
+    } else if (source.startsWith('${', index)) {
+      index = skipTemplateExpression(source, index + 2);
+    } else {
+      index += 1;
+    }
+  }
+
+  return source.length;
+}
+
+function readIdentifier(source, start) {
+  let end = start;
+  while (end < source.length && /[A-Za-z0-9_$]/.test(source[end])) {
+    end += 1;
+  }
+  return {end, value: source.slice(start, end)};
+}
+
+function readImportDeclaration(source, start) {
+  let index = skipTrivia(source, start);
+
+  if (source[index] === '(' || source[index] === '.') {
+    return null;
+  }
+
+  if (source[index] === "'" || source[index] === '"') {
+    return readQuotedString(source, index).value;
+  }
+
+  while (index < source.length && source[index] !== ';') {
+    index = skipTrivia(source, index);
+    if (/[A-Za-z_$]/.test(source[index])) {
+      const identifier = readIdentifier(source, index);
+      index = identifier.end;
+      if (identifier.value === 'from') {
+        index = skipTrivia(source, index);
+        if (source[index] === "'" || source[index] === '"') {
+          return readQuotedString(source, index).value;
+        }
+        return null;
+      }
+    } else if (source[index] === "'" || source[index] === '"') {
+      index = readQuotedString(source, index).end;
+    } else if (source[index] === '`') {
+      index = skipTemplateLiteral(source, index);
+    } else {
+      index += 1;
+    }
+  }
+
+  return null;
+}
+
 function staticImports(source) {
   const imports = [];
-  const importPattern = /\bimport\s+(?:[^'";]*?\s+from\s*)?['"]([^'"]+)['"]/g;
-  let match;
+  let index = 0;
 
-  while ((match = importPattern.exec(source)) !== null) {
-    imports.push(match[1]);
+  while (index < source.length) {
+    const afterComment = skipComment(source, index);
+    if (afterComment !== index) {
+      index = afterComment;
+    } else if (source[index] === "'" || source[index] === '"') {
+      index = readQuotedString(source, index).end;
+    } else if (source[index] === '`') {
+      index = skipTemplateLiteral(source, index);
+    } else if (/[A-Za-z_$]/.test(source[index])) {
+      const identifier = readIdentifier(source, index);
+      index = identifier.end;
+      if (identifier.value === 'import') {
+        const specifier = readImportDeclaration(source, index);
+        if (specifier !== null) imports.push(specifier);
+      }
+    } else {
+      index += 1;
+    }
   }
 
   return imports;
@@ -106,12 +259,14 @@ export function analyzeArchitecture(rootDir) {
     }
 
     const importsFileSystem = imports.includes('node:fs') || imports.includes('node:fs/promises');
+    const importsTaxonomyData = imports.some(
+      (specifier) => /(^|[/\\])data[/\\][^/\\]+\.json$/.test(specifier),
+    );
     const referencesTaxonomyData = /\b(?:resolve|join)\s*\([^)]*['"]data['"]/.test(source)
       || /['"](?:[^'"]*[/\\])?data[/\\][^'"]+\.json['"]/.test(source)
       || imports.some((specifier) => /(^|[/\\])data[/\\]/.test(specifier));
     if (
-      importsFileSystem
-      && referencesTaxonomyData
+      (importsTaxonomyData || (importsFileSystem && referencesTaxonomyData))
       && !rules.taxonomyFileAccessAllowed.has(sourceName)
     ) {
       violations.push(`taxonomy-file-access: ${sourceName}`);
