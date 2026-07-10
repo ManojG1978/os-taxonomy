@@ -1,5 +1,12 @@
 # CBSE/NCERT Class 6 Math Pilot Coverage QA And Expansion Implementation Plan
 
+> **Status: historical snapshot.** Counts, findings, and next-slice guidance in
+> this file describe the reviewed release state at the time of this tranche.
+> They are preserved as implementation evidence, not current backlog. See
+> [`docs/curriculum-coverage.md`](../../curriculum-coverage.md) for live counts
+> and [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md)
+> for current sequencing.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:
 > executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -9,11 +16,6 @@ choose the next bounded codes-only mapping slice.
 **Architecture:** Use the released JSON as the source of truth for counts and
 coverage. Keep the repo data-only, use existing Marble topic IDs only, and do
 not add a filtering script or any runtime dependency.
-
-**Status note:** This plan originally described a documentation-only 10-key /
-18-row QA pass. The current release state is 40 source keys and 76 alignment
-rows after the reviewed Geometry/Measurement, Data Handling/Patterns,
-Fractions, and Integers slices.
 
 **Tech Stack:** Node.js ES modules, dependency-free validation script, UTF-8 JSON, Markdown docs.
 

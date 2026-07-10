@@ -1,5 +1,11 @@
 # CBSE/NCERT Class 6 Math Pilot Mapping Implementation Plan
 
+> **Status: completed historical record.** This file describes the first
+> bounded NCERT/CBSE pilot slice. Later reviewed slices expanded the release.
+> Use [`docs/curriculum-coverage.md`](../../curriculum-coverage.md) for current
+> counts and [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md)
+> for current sequencing.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:
 > executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

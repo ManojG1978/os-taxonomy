@@ -1,5 +1,12 @@
 # CBSE/NCERT Class 6 Math Pilot Coverage QA Design
 
+> **Status: historical snapshot.** Counts, findings, and next-slice guidance in
+> this file describe the reviewed release state at the time of this tranche.
+> They are preserved as implementation evidence, not current backlog. See
+> [`docs/curriculum-coverage.md`](../../curriculum-coverage.md) for live counts
+> and [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md)
+> for current sequencing.
+
 ## Goal
 
 Review the first CBSE-facing NCERT Class 6 Mathematics pilot mapping for
@@ -7,12 +14,6 @@ coverage quality, document gaps against the current Marble Mathematics topic
 graph, and select the next bounded codes-only Class 6 Math slice to map.
 
 ## Scope
-
-Status note: this planning document was superseded by later reviewed data
-slices. The current `ncert-class6-math-2026-27` state is 40 source keys and 76
-alignment rows across Number System, Fractions, Geometry/Measurement, Data
-Handling/Patterns, and Integers. Keep this document as a historical planning
-artifact, not as the current release inventory.
 
 The tranche produces:
 

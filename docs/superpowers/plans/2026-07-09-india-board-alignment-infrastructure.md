@@ -1,5 +1,11 @@
 # India Board Alignment Infrastructure Implementation Plan
 
+> **Status: completed historical record.** The alignment infrastructure has
+> landed. For current release counts and coverage, see
+> [`docs/curriculum-coverage.md`](../../curriculum-coverage.md). For current
+> product sequencing, see
+> [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:
 > executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

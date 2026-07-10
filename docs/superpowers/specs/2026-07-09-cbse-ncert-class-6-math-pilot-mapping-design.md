@@ -1,5 +1,11 @@
 # CBSE/NCERT Class 6 Math Pilot Mapping Design
 
+> **Status: completed historical record.** This file describes the first
+> bounded NCERT/CBSE pilot slice. Later reviewed slices expanded the release.
+> Use [`docs/curriculum-coverage.md`](../../curriculum-coverage.md) for current
+> counts and [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md)
+> for current sequencing.
+
 ## Goal
 
 Add the first India board-alignment pilot by mapping a small, reviewable slice

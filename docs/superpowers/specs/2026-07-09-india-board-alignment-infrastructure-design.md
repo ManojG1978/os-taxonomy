@@ -1,5 +1,11 @@
 # India Board Alignment Infrastructure Design
 
+> **Status: completed historical record.** The alignment infrastructure has
+> landed. For current release counts and coverage, see
+> [`docs/curriculum-coverage.md`](../../curriculum-coverage.md). For current
+> product sequencing, see
+> [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md).
+
 ## Goal
 
 Add the data-model foundation needed to filter the Marble Skill Taxonomy by

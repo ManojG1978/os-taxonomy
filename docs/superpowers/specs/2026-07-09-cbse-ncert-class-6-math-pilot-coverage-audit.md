@@ -1,5 +1,12 @@
 # CBSE/NCERT Class 6 Math Pilot Coverage Audit
 
+> **Status: historical snapshot.** Counts, findings, and next-slice guidance in
+> this file describe the reviewed release state at the time of this tranche.
+> They are preserved as implementation evidence, not current backlog. See
+> [`docs/curriculum-coverage.md`](../../curriculum-coverage.md) for live counts
+> and [`docs/easefactor-product-roadmap.md`](../../easefactor-product-roadmap.md)
+> for current sequencing.
+
 This audit reviews the existing codes-only `ncert-class6-math-2026-27`
 alignment rows. It must not include copied upstream textbook, syllabus,
 exercise, exemplar, or standard text.
