@@ -779,10 +779,10 @@ Expected: no matches. Do not apply this assertion to dated historical plan bodie
 Run:
 
 ```powershell
-git diff HEAD~5 -- docs README.md scripts/easefactor-api.test.mjs apps/visualizer/src/lib/alignmentFilters.test.mjs | rg -n -i "student name|child name|email|phone|address|chapter text|exercise text|syllabus text|upstream standard text"
+git diff 30b4afa6e2ee461008dec3db48b7800aa75ba83a..HEAD -- docs README.md scripts/easefactor-api.test.mjs apps/visualizer/src/lib/alignmentFilters.test.mjs | rg -n -i "student name|child name|email|phone|address|chapter text|exercise text|syllabus text|upstream standard text"
 ```
 
-Expected: no added real-person data or copied upstream text. Descriptive statements explaining that such text is excluded are acceptable on manual inspection.
+Expected: no added real-person data or copied upstream text. Descriptive statements explaining that such text is excluded are acceptable on manual inspection. This keyword scan is only a review aid; it cannot prove absence, so inspect the complete scoped diff and adjudicate every match manually.
 
 - [ ] **Step 4: Run the repository validator**
 
@@ -847,15 +847,18 @@ If no corrections were needed, do not create an empty commit.
 
 ## Final Handoff Checklist
 
-- [ ] Generic parent-and-educator report is public, approachable, and count-light.
-- [ ] Canonical roadmap distinguishes status, owner, and repository boundary.
-- [ ] Parent-first Class 6 Mathematics sequence is explicit and extensible.
-- [ ] Student and teacher reuse remains a future experience over shared services.
-- [ ] Public/current documentation uses 3,311 standards, 50 NCERT source keys, and 94 alignments where counts are necessary.
-- [ ] Historical plans are clearly non-authoritative without rewriting dated evidence.
-- [ ] Codes-only and private-data boundaries are preserved.
-- [ ] All local Markdown links resolve.
-- [ ] Root validation passes.
-- [ ] EaseFactor reference and API tests pass.
-- [ ] Visualizer alignment filters, type checking, and production build pass.
-- [ ] Worktree state and commits are reported exactly.
+Completed on 2026-07-10 with the verification evidence recorded in
+`.superpowers/sdd/task-6-report.md`.
+
+- [x] Generic parent-and-educator report is public, approachable, and count-light.
+- [x] Canonical roadmap distinguishes status, owner, and repository boundary.
+- [x] Parent-first Class 6 Mathematics sequence is explicit and extensible.
+- [x] Student and teacher reuse remains a future experience over shared services.
+- [x] Public/current documentation uses 3,311 standards, 50 NCERT source keys, and 94 alignments where counts are necessary.
+- [x] Historical plans are clearly non-authoritative without rewriting dated evidence.
+- [x] Codes-only and private-data boundaries are preserved.
+- [x] All local Markdown links resolve.
+- [x] Root validation passes.
+- [x] EaseFactor reference and API tests pass.
+- [x] Visualizer alignment filters, type checking, and production build pass.
+- [x] Worktree state and commits are reported exactly.

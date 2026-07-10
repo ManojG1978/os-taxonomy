@@ -94,10 +94,12 @@ notes, or release docs.
 When editing only documentation, validation is still cheap and useful because it
 confirms the checkout remains release-consistent.
 
-## Release Inventory
+## Current Validated Checkout Inventory
 
-The initial public release is `1.0.0`, dated 2026-07-08, with taxonomy version
-`v1`.
+The following counts describe the currently validated checkout for taxonomy
+version `v1`. They are not the immutable inventory of the initial public
+release. See [CHANGELOG.md](../CHANGELOG.md) for historical release notes and
+the counts recorded for each published release.
 
 Included:
 
