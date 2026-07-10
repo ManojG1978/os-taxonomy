@@ -112,7 +112,7 @@ test('GET /taxonomy/v1/curricula lists curriculum metadata without expanding sta
         assert.equal(body.curricula[0].slug, 'ncert-class6-math-2026-27');
         assert.equal(body.curricula[0].textIncluded, false);
         assert.equal(body.curricula[0].codesOnly, true);
-        assert.equal(body.curricula[0].topicCount, 26);
+        assert.equal(body.curricula[0].topicCount, 50);
         assert.equal(Object.hasOwn(body.curricula[0], 'topics'), false);
     });
 });
@@ -179,8 +179,8 @@ test('GET /taxonomy/v1/coverage summarizes curriculum alignment observability', 
         assert.equal(body.coverage.length, 1);
         assert.equal(body.coverage[0].curriculum, 'ncert-class6-math-2026-27');
         assert.equal(body.coverage[0].codesOnly, true);
-        assert.equal(body.coverage[0].standardCount, 26);
-        assert.equal(body.coverage[0].alignmentCount, 50);
+        assert.equal(body.coverage[0].standardCount, 50);
+        assert.equal(body.coverage[0].alignmentCount, 94);
         assert.ok(body.coverage[0].alignedTopicCount > 0);
         assert.ok(body.coverage[0].subjects.includes('Mathematics'));
     });
